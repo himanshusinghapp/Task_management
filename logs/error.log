@@ -1,0 +1,27 @@
+{"error":"Missing credentials for \"PLAIN\"","level":"error","message":"User creation failed","timestamp":"2025-06-22T17:43:02.995Z"}
+{"error":"User already exists","level":"error","message":"User creation failed","timestamp":"2025-06-22T17:46:59.078Z"}
+{"error":"Missing credentials for \"PLAIN\"","level":"error","message":"User creation failed","timestamp":"2025-06-22T17:47:47.357Z"}
+{"error":"User already exists","level":"error","message":"User creation failed","timestamp":"2025-06-22T17:48:03.369Z"}
+{"error":"Missing credentials for \"PLAIN\"","level":"error","message":"User creation failed","timestamp":"2025-06-22T17:53:16.878Z"}
+{"error":"Missing credentials for \"PLAIN\"","level":"error","message":"User creation failed","timestamp":"2025-06-22T17:56:46.364Z"}
+{"error":"Missing credentials for \"PLAIN\"","level":"error","message":"User creation failed","timestamp":"2025-06-22T18:03:25.352Z"}
+{"error":"Missing credentials for \"PLAIN\"","level":"error","message":"User creation failed","timestamp":"2025-06-22T18:08:51.366Z"}
+{"error":"User already exists","level":"error","message":"User creation failed","timestamp":"2025-06-22T18:57:02.409Z"}
+{"error":"Admin already exists","level":"error","message":"Admin signup failed","timestamp":"2025-06-22T19:06:54.072Z"}
+{"error":"Failed to create task","level":"error","message":"Task created","timestamp":"2025-06-22T19:42:08.463Z"}
+{"error":"only admin can assign","level":"error","message":"Task created","timestamp":"2025-06-23T06:09:17.672Z"}
+{"error":"only admin can assign","level":"error","message":"Task created","timestamp":"2025-06-23T06:12:10.753Z"}
+{"error":"only admin can assign","level":"error","message":"Task created","timestamp":"2025-06-23T06:13:49.750Z"}
+{"error":"invalid blocked id","level":"error","message":"Task created","timestamp":"2025-06-23T06:15:42.292Z"}
+{"error":"invalid blocked id","level":"error","message":"Task created","timestamp":"2025-06-23T06:16:30.957Z"}
+{"error":"Invalid task ID","level":"error","message":"Task updated","timestamp":"2025-06-23T07:00:22.154Z"}
+{"error":"Access denied","level":"error","message":"Task updated","timestamp":"2025-06-23T07:01:46.487Z"}
+{"error":"Access denied","level":"error","message":"Task updated","timestamp":"2025-06-23T07:02:29.876Z"}
+{"error":"Access denied","level":"error","message":"Task updated","timestamp":"2025-06-23T07:02:34.794Z"}
+{"error":"Invalid task ID","level":"error","message":"upload attachment","timestamp":"2025-06-23T07:06:06.398Z"}
+{"error":"Invalid task ID","level":"error","message":"upload attachment","timestamp":"2025-06-23T07:06:48.783Z"}
+{"error":"Task not found","level":"error","message":"Failed to update comment","timestamp":"2025-06-23T07:28:44.442Z"}
+{"error":"Unauthorized access","level":"error","message":"Failed to update comment","timestamp":"2025-06-23T07:30:05.037Z"}
+{"error":"Unauthorized access","level":"error","message":"Failed to update comment","timestamp":"2025-06-23T07:36:58.582Z"}
+{"error":"Unauthorized access","level":"error","message":"Failed to update comment","timestamp":"2025-06-23T07:38:01.371Z"}
+{"error":"Unauthorized access","level":"error","message":"Failed to delete comment","timestamp":"2025-06-23T07:41:35.926Z"}
