@@ -1,4 +1,4 @@
-import { HTTP_STATUS } from './constants/httpStatus';
+import { HTTP_STATUS } from '../constants/httpStatus';
 export const Exceptions = {
   BadRequest: (message: string) => ({ status: HTTP_STATUS.BAD_REQUEST, message }),
   Unauthorized: (message: string) => ({ status: HTTP_STATUS.UNAUTHORIZED, message }),

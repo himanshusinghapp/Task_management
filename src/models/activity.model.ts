@@ -1,4 +1,3 @@
-// models/activity.model.ts
 import mongoose, { Schema } from 'mongoose';
 
 const activitySchema = new Schema({

@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { TaskController } from '../controllers/task.controller';
-import { authenticate } from '../middlewares/auth.middleware';
-import { upload } from '../utils/multer';
+import { TaskController } from '@controllers/task.controller';
+import { authenticate } from '@middlewares/auth.middleware';
+import { upload } from '@utils/multer';
 
 const router = Router();
 const controller = new TaskController();

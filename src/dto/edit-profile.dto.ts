@@ -1,6 +1,6 @@
 import Joi from 'joi';
 
 export const editProfileSchema = Joi.object({
-  name: Joi.string().min(3).optional(),
-  email: Joi.string().email().optional(),
+  name: Joi.string().trim().min(3).max(100).optional(),
+  email: Joi.string().trim().email().max(100).optional(),
 });

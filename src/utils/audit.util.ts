@@ -1,6 +1,6 @@
-import { Activity } from '../models/activity.model';
+import { Activity } from '@models/activity.model';
 import { logMessage } from './logger';
-import { LOGGER_MESSAGES } from '../common/constants/logger.constant';
+import { LOGGER_MESSAGES } from '@common/constants/logger.constant';
 
 export const logActivity = async (
   userId: string,

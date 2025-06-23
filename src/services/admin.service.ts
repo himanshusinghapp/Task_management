@@ -1,13 +1,13 @@
 import bcrypt from 'bcrypt';
-import { Admin } from '../models/admin.model';
-import { User } from '../models/user.model';
-import { generateToken } from '../utils/jwt.utils';
-import { hashPassword } from '../common/hash';
-import { USER_MESSAGES } from '../common/constants/userMessage';
-import { LOGGER_MESSAGES } from '../common/constants/logger.constant';
-import { logMessage } from '../utils/logger';
-import { Exceptions } from '../common/customException';
-import { findAdminByEmail, findAdminById, updateAdminById, findUserById, updateUserById, findUsers } from '../utils/query';
+import { Admin } from '@models/admin.model';
+import { User } from '@models/user.model';
+import { generateToken } from '@utils/jwt.utils';
+import { hashPassword } from '@common/helpers/hash';
+import { USER_MESSAGES } from '@common/constants/userMessage';
+import { LOGGER_MESSAGES } from '@common/constants/logger.constant';
+import { logMessage } from '@utils/logger';
+import { Exceptions } from '@common/exception/customException';
+import { findAdminByEmail, findAdminById, findUserById, updateUserById, findUsers } from '@utils/query';
 
 export class AdminService {
   async signup(name: string, email: string, password: string) {
@@ -18,7 +18,7 @@ export class AdminService {
     const admin = await Admin.create({ name, email, password: hashed });
 
     logMessage('info', LOGGER_MESSAGES.ADMIN_CREATED, { adminId: admin._id });
-    return {  message: USER_MESSAGES.ADMIN_CREATED };
+    return { adminId: admin._id };
   }
 
   async login(email: string, password: string) {
@@ -32,7 +32,6 @@ export class AdminService {
 
     logMessage('info', LOGGER_MESSAGES.ADMIN_LOGIN_SUCCESS, { adminId: admin._id });
     return {
-      message: USER_MESSAGES.LOGIN_SUCCESS,
       accessToken,
       admin: { id: admin._id, name: admin.name, email: admin.email },
     };
@@ -40,7 +39,7 @@ export class AdminService {
 
   async getAllUsers() {
     const users = await findUsers();
-    return { message: USER_MESSAGES.USER_FETCH_SUCCESS, users };
+    return users;
   }
 
   async blockUser(userId: string) {
@@ -49,7 +48,7 @@ export class AdminService {
 
     await updateUserById(userId, { isActive: false });
     logMessage('warn', LOGGER_MESSAGES.ADMIN_BLOCK_USER, { userId });
-    return { message: USER_MESSAGES.USER_BLOCKED };
+    return { userId };
   }
 
   async unblockUser(userId: string) {
@@ -58,7 +57,7 @@ export class AdminService {
 
     await updateUserById(userId, { isActive: true });
     logMessage('info', LOGGER_MESSAGES.ADMIN_UNBLOCK_USER, { userId });
-    return { message: USER_MESSAGES.USER_UNBLOCKED };
+    return { userId };
   }
 
   async searchUsers(query: string) {
@@ -69,17 +68,18 @@ export class AdminService {
         { phoneNumber: { $regex: query, $options: 'i' } },
       ],
     }).select('-password');
-    return { message: USER_MESSAGES.USER_SEARCH_SUCCESS, users };
+    return users;
   }
 
   async getProfile(adminId: string) {
     const admin = await findAdminById(adminId);
     if (!admin) throw Exceptions.NotFound(USER_MESSAGES.ADMIN_NOT_FOUND);
-    return admin;
+    return { id: admin._id, name: admin.name, email: admin.email, isActive: admin.isActive };
   }
 
   async logout(adminId: string) {
     const admin = await findAdminById(adminId);
     if (!admin) throw Exceptions.NotFound(USER_MESSAGES.ADMIN_NOT_FOUND);
-}
+    return { adminId };
+  }
 }

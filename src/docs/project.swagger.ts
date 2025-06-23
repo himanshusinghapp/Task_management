@@ -18,20 +18,28 @@
  *         description:
  *           type: string
  *           example: Redesign company website with modern UI
- *         startDate:
- *           type: string
- *           format: date
- *           example: 2025-06-01
- *         endDate:
- *           type: string
- *           format: date
- *           example: 2025-08-31
  *       required:
  *         - name
- *         - description
- *         - startDate
- *         - endDate
+ *     ProjectUpdate:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *           example: Website Redesign
+ *         description:
+ *           type: string
+ *           example: Updated description
  *     AssignMembers:
+ *       type: object
+ *       properties:
+ *         memberIds:
+ *           type: array
+ *           items:
+ *             type: string
+ *             example: 12345
+ *       required:
+ *         - memberIds
+ *     RemoveMembers:
  *       type: object
  *       properties:
  *         memberIds:
@@ -51,6 +59,41 @@
  *             example: 67890
  *       required:
  *         - taskIds
+ *     RemoveTasks:
+ *       type: object
+ *       properties:
+ *         taskIds:
+ *           type: array
+ *           items:
+ *             type: string
+ *             example: 67890
+ *       required:
+ *         - taskIds
+ *     Project:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           example: 98765
+ *         name:
+ *           type: string
+ *           example: Website Redesign
+ *         description:
+ *           type: string
+ *           example: Redesign company website with modern UI
+ *         createdBy:
+ *           type: string
+ *           example: 54321
+ *         members:
+ *           type: array
+ *           items:
+ *             type: string
+ *             example: 12345
+ *         tasks:
+ *           type: array
+ *           items:
+ *             type: string
+ *             example: 67890
  *   securitySchemes:
  *     bearerAuth:
  *       type: http
@@ -82,30 +125,9 @@
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Project created
+ *                   example: Project created successfully
  *                 data:
- *                   type: object
- *                   properties:
- *                     _id:
- *                       type: string
- *                       example: 98765
- *                     name:
- *                       type: string
- *                       example: Website Redesign
- *                     description:
- *                       type: string
- *                       example: Redesign company website with modern UI
- *                     startDate:
- *                       type: string
- *                       format: date
- *                       example: 2025-06-01
- *                     endDate:
- *                       type: string
- *                       format: date
- *                       example: 2025-08-31
- *                     createdBy:
- *                       type: string
- *                       example: 54321
+ *                   $ref: '#/components/schemas/Project'
  *       500:
  *         description: Server error
  *   get:
@@ -119,42 +141,88 @@
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   _id:
- *                     type: string
- *                     example: 98765
- *                   name:
- *                     type: string
- *                     example: Website Redesign
- *                   description:
- *                     type: string
- *                     example: Redesign company website with modern UI
- *                   startDate:
- *                     type: string
- *                     format: date
- *                     example: 2025-06-01
- *                   endDate:
- *                     type: string
- *                     format: date
- *                     example: 2025-08-31
- *                   createdBy:
- *                     type: string
- *                     example: 54321
- *                   members:
- *                     type: array
- *                     items:
- *                       type: string
- *                       example: 12345
- *                   tasks:
- *                     type: array
- *                     items:
- *                       type: string
- *                       example: 67890
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Projects fetched successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Project'
  *       500:
  *         description: Server error
+ */
+
+/**
+ * @swagger
+ * /project/{projectId}:
+ *   patch:
+ *     summary: Update a project
+ *     tags: [Project]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: projectId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: 98765
+ *         description: ID of the project to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ProjectUpdate'
+ *     responses:
+ *       200:
+ *         description: Project updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Project updated successfully
+ *                 data:
+ *                   $ref: '#/components/schemas/Project'
+ *       400:
+ *         description: Invalid request
+ *   delete:
+ *     summary: Delete a project
+ *     tags: [Project]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: projectId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: 98765
+ *         description: ID of the project to delete
+ *     responses:
+ *       200:
+ *         description: Project deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Project deleted successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       example: 98765
+ *       400:
+ *         description: Invalid request
  */
 
 /**
@@ -189,18 +257,44 @@
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Members assigned to project
- *                 project:
- *                   type: object
- *                   properties:
- *                     _id:
- *                       type: string
- *                       example: 98765
- *                     members:
- *                       type: array
- *                       items:
- *                         type: string
- *                         example: 12345
+ *                   example: Members assigned successfully
+ *                 data:
+ *                   $ref: '#/components/schemas/Project'
+ *       400:
+ *         description: Invalid request
+ * /project/{projectId}/remove-members:
+ *   patch:
+ *     summary: Remove members from a project
+ *     tags: [Project]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: projectId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: 98765
+ *         description: ID of the project to remove members from
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/RemoveMembers'
+ *     responses:
+ *       200:
+ *         description: Members removed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Members removed successfully
+ *                 data:
+ *                   $ref: '#/components/schemas/Project'
  *       400:
  *         description: Invalid request
  */
@@ -237,18 +331,44 @@
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Tasks assigned to project
- *                 project:
- *                   type: object
- *                   properties:
- *                     _id:
- *                       type: string
- *                       example: 98765
- *                     tasks:
- *                       type: array
- *                       items:
- *                         type: string
- *                         example: 67890
+ *                   example: Tasks assigned successfully
+ *                 data:
+ *                   $ref: '#/components/schemas/Project'
+ *       400:
+ *         description: Invalid request
+ * /project/{projectId}/remove-tasks:
+ *   patch:
+ *     summary: Remove tasks from a project
+ *     tags: [Project]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: projectId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: 98765
+ *         description: ID of the project to remove tasks from
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/RemoveTasks'
+ *     responses:
+ *       200:
+ *         description: Tasks removed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Tasks removed successfully
+ *                 data:
+ *                   $ref: '#/components/schemas/Project'
  *       400:
  *         description: Invalid request
  */

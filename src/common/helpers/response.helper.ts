@@ -20,4 +20,12 @@ export class ResponseHelper {
       data,
     };
   }
+
+  static error<T>(statusCode: number, message: string, data?: T): ApiResponse<T> {
+    return {
+      statusCode,
+      message,
+      data,
+    };
+  }
 }

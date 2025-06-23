@@ -1,93 +1,92 @@
 import mongoose from 'mongoose';
-import { logMessage } from '../utils/logger';
-import { LOGGER_MESSAGES } from '../common/constants/logger.constant';
-import { USER_MESSAGES } from '../common/constants/userMessage';
+import { logMessage } from '@utils/logger';
+import { LOGGER_MESSAGES } from '@common/constants/logger.constant';
+
 import {
-  findProjectById,
   getAllProjects,
   getProjectsByUserId,
 } from '../utils/query';
-import { Exceptions } from '../common/customException';
+import { Exceptions } from '../common/exception/customException';
 import { Project } from '../models/project.model';
+import { validateObjectIdArray } from '../common/helpers/validateObjectIdArray';
 
 export class ProjectService {
   async createProject(data: any, createdBy: string) {
-    try {
-      const project = await new Project({ ...data, createdBy }).save();
-      logMessage('info', LOGGER_MESSAGES.PROJECT_CREATED, {
-        createdBy,
-        projectId: project._id,
-      });
-      return project;
-    } catch (err: any) {
-      logMessage('error', LOGGER_MESSAGES.PROJECT_CREATION_FAILED, {
-        error: err.message,
-      });
-      throw Exceptions.InternalServerError(USER_MESSAGES.CREATE_FAILED);
-    }
+    const existing = await Project.findOne({ name: data.name });
+    if (existing) throw Exceptions.BadRequest('Project name already exists');
+    const project = await Project.create({ ...data, createdBy });
+    logMessage('info', LOGGER_MESSAGES.PROJECT_CREATED, {
+      createdBy,
+      projectId: project._id,
+    });
+    return { id: project._id, name: project.name, description: project.description };
+  }
+
+  async updateProject(projectId: string, update: any) {
+    const project = await Project.findByIdAndUpdate(
+      projectId,
+      { $set: update },
+      { new: true, runValidators: true }
+    ).lean();
+    if (!project) throw Exceptions.NotFound('Project not found');
+    return project;
+  }
+
+  async deleteProject(projectId: string) {
+    const project = await Project.findByIdAndDelete(projectId).lean();
+    if (!project) throw Exceptions.NotFound('Project not found');
+    return { id: project._id };
   }
 
   async assignMembers(projectId: string, memberIds: string[]) {
-    try {
-      const project = await findProjectById(projectId);
-      if (!project) throw Exceptions.NotFound(USER_MESSAGES.NOT_FOUND);
+    validateObjectIdArray(memberIds, 'memberIds');
+    const project = await Project.findByIdAndUpdate(
+      projectId,
+      { $addToSet: { members: { $each: memberIds.map(id => new mongoose.Types.ObjectId(id)) } } },
+      { new: true }
+    ).lean();
+    if (!project) throw Exceptions.NotFound('Project not found');
+    return project;
+  }
 
-      const uniqueMembers = new Set([
-        ...project.members.map((id) => id.toString()),
-        ...memberIds,
-      ]);
-      project.members = Array.from(uniqueMembers).map(
-        (id) => new mongoose.Types.ObjectId(id)
-      );
-
-      await project.save();
-      logMessage('info', LOGGER_MESSAGES.MEMBERS_ASSIGNED, { projectId });
-      return { message: USER_MESSAGES.MEMBERS_ASSIGNED, project };
-    } catch (err: any) {
-      logMessage('error', LOGGER_MESSAGES.ASSIGN_MEMBERS_FAILED, {
-        error: err.message,
-      });
-      throw Exceptions.BadRequest(err.message);
-    }
+  async removeMembers(projectId: string, memberIds: string[]) {
+    validateObjectIdArray(memberIds, 'memberIds');
+    const project = await Project.findByIdAndUpdate(
+      projectId,
+      { $pull: { members: { $in: memberIds.map(id => new mongoose.Types.ObjectId(id)) } } },
+      { new: true }
+    ).lean();
+    if (!project) throw Exceptions.NotFound('Project not found');
+    return project;
   }
 
   async assignTasks(projectId: string, taskIds: string[]) {
-    try {
-      const project = await findProjectById(projectId);
-      if (!project) throw Exceptions.NotFound(USER_MESSAGES.NOT_FOUND);
+    validateObjectIdArray(taskIds, 'taskIds');
+    const project = await Project.findByIdAndUpdate(
+      projectId,
+      { $addToSet: { tasks: { $each: taskIds.map(id => new mongoose.Types.ObjectId(id)) } } },
+      { new: true }
+    ).lean();
+    if (!project) throw Exceptions.NotFound('Project not found');
+    return project;
+  }
 
-      const uniqueTasks = new Set([
-        ...project.tasks.map((id) => id.toString()),
-        ...taskIds,
-      ]);
-      project.tasks = Array.from(uniqueTasks).map(
-        (id) => new mongoose.Types.ObjectId(id)
-      );
-
-      await project.save();
-      logMessage('info', LOGGER_MESSAGES.TASKS_ASSIGNED, { projectId });
-      return { message: USER_MESSAGES.TASKS_ASSIGNED, project };
-    } catch (err: any) {
-      logMessage('error', LOGGER_MESSAGES.ASSIGN_TASKS_FAILED, {
-        error: err.message,
-      });
-      throw Exceptions.BadRequest(err.message);
-    }
+  async removeTasks(projectId: string, taskIds: string[]) {
+    validateObjectIdArray(taskIds, 'taskIds');
+    const project = await Project.findByIdAndUpdate(
+      projectId,
+      { $pull: { tasks: { $in: taskIds.map(id => new mongoose.Types.ObjectId(id)) } } },
+      { new: true }
+    ).lean();
+    if (!project) throw Exceptions.NotFound('Project not found');
+    return project;
   }
 
   async getProjectsByUser(userId: string, role: string) {
-    try {
-      const projects =
-        role === 'admin'
-          ? await getAllProjects()
-          : await getProjectsByUserId(userId);
-
-      return projects;
-    } catch (err: any) {
-      logMessage('error', LOGGER_MESSAGES.FETCH_PROJECTS_FAILED, {
-        error: err.message,
-      });
-      throw Exceptions.InternalServerError(USER_MESSAGES.FETCH_FAILED);
-    }
+    const projects =
+      role === 'admin'
+        ? await getAllProjects()
+        : await getProjectsByUserId(userId);
+    return projects;
   }
 }

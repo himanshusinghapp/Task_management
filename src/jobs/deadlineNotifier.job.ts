@@ -1,7 +1,7 @@
 import cron from 'node-cron';
-import { Task } from '../models/task.model';
-import { sendEmail } from '../utils/email';
-import { User } from '../models/user.model';
+import { Task } from '@models/task.model';
+import { sendEmail } from '@utils/email';
+import { User } from '@models/user.model';
 
 cron.schedule('0 * * * *', async () => {
   const now = new Date();

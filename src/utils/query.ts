@@ -1,8 +1,8 @@
-import { User } from '../models/user.model';
-import { Admin } from '../models/admin.model';
-import { Task } from '../models/task.model';
-import { Project } from '../models/project.model';
-import { Comment } from '../models/comment.model';
+import { User } from '@models/user.model';
+import { Admin } from '@models/admin.model';
+import { Task } from '@models/task.model';
+import { Project } from '@models/project.model';
+import { Comment } from '@models/comment.model';
 
 export const findUserByEmail = async (email: string) => User.findOne({ email });
 export const findUserById = async (id: string) => User.findById(id);
@@ -13,7 +13,7 @@ export const findAdminByEmail = async (email: string) => {
 };
 
 export const findAdminById = async (id: string) => {
-  return await Admin.findById(id);
+  return await Admin.findById(id).lean();
 };
 
 export const updateAdminById = async (id: string, data: Partial<typeof Admin>) => {
@@ -29,8 +29,8 @@ export const findTaskById = async (id: string) => Task.findById(id).populate('as
 export const findTasksByUser = async (userId: string) =>
   Task.find({ assignedTo: userId }).populate('assignedTo createdBy');
 
-export const findAllTasks = async (role: string, userId: string) =>
-  Task.find({ assignedTo: userId }).populate('assignedTo createdBy').populate('assignedTo createdBy');;
+export const findAllTasks = (role: string, userId: string) =>
+  Task.find(role === 'admin' ? {} : { assignedTo: userId }).populate('assignedTo createdBy');
 
 export const findTasksByLabel = async (label: string, userId: string, role: string) => {
   const filter: any = { labels: label };
@@ -46,20 +46,17 @@ export const findTasksByMonthYear = async (month: number, year: number, userId: 
   return Task.find(filter).populate('assignedTo createdBy');
 };
 
-
-
 export const findProjectById = async (projectId: string) => {
   return await Project.findById(projectId);
 };
 
 export const getAllProjects = async () => {
-  return await Project.find().populate('members createdBy');
+  return await Project.find().populate('members createdBy').lean();
 };
 
 export const getProjectsByUserId = async (userId: string) => {
   return await Project.find({ members: userId }).populate('members createdBy');
 };
-
 
 export const CommentQuery = {
   create: async (data: any) => await Comment.create(data),

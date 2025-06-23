@@ -9,6 +9,14 @@ const objectId: CustomValidator<string> = (value, helpers) => {
   return value;
 };
 
+export const taskIdDto = Joi.object({
+  taskId: Joi.string().custom(objectId).required(),
+});
+export const labelDto = Joi.object({
+  label: Joi.string().trim().min(1).max(50).required(),
+});
+
+
 export const createTaskDto = Joi.object({
   title: Joi.string().trim().min(3).max(100).required().messages({
     'string.base': 'Title must be a string',
@@ -19,15 +27,15 @@ export const createTaskDto = Joi.object({
   description: Joi.string().trim().allow('').max(1000).default('').messages({
     'string.max': 'Description cannot exceed 1000 characters',
   }),
-  dueDate: Joi.date().iso().optional().messages({
+  dueDate: Joi.date().iso().greater('now').optional().messages({
     'date.base': 'Due date must be a valid date',
+    'date.greater': 'Due date must be in the future',
   }),
   priority: Joi.string().valid('low', 'medium', 'high').optional().default('medium').messages({
     'any.only': 'Priority must be one of: low, medium, high',
   }),
   assignedTo: Joi.string()
     .custom(objectId)
-    .required()
     .optional()
     .messages({
       'any.required': 'Assigned user is required',

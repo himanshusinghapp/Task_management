@@ -1,16 +1,16 @@
 import bcrypt from 'bcrypt';
-import { redis } from '../utils/reddis';
-import { hashPassword } from '../common/hash';
-import { generateOtp } from '../utils/generator.utils';
-import { sendEmail } from '../utils/email';
-import { generateToken } from '../utils/jwt.utils';
-import { USER_MESSAGES } from '../common/constants/userMessage';
-import { OTP_EXPIRY, OTP_ATTEMPT_THRESHOLD, OTP_ATTEMPT_BLOCK_TIME } from '../common/constants/user.constant';
-import { logMessage } from '../utils/logger';
-import { LOGGER_MESSAGES } from '../common/constants/logger.constant';
-import { findUserByEmail, findUserById, updateUserById } from '../utils/query';
-import { Exceptions } from '../common/customException';
-import { User } from '../models/user.model';
+import { redis } from '@utils/reddis';
+import { hashPassword } from '@common/helpers/hash';
+import { generateOtp } from '@utils/generator.utils';
+import { sendEmail } from '@utils/email';
+import { generateToken } from '@utils/jwt.utils';
+import { USER_MESSAGES } from '@common/constants/userMessage';
+import { OTP_EXPIRY, OTP_ATTEMPT_THRESHOLD, OTP_ATTEMPT_BLOCK_TIME } from '@common/constants/user.constant';
+import { logMessage } from '@utils/logger';
+import { LOGGER_MESSAGES } from '@common/constants/logger.constant';
+import { findUserByEmail, findUserById, updateUserById } from '@utils/query';
+import { Exceptions } from '@common/exception/customException';
+import { User } from '@models/user.model';
 
 export class AuthService {
   async signup(name: string, email: string, password: string) {
@@ -25,7 +25,7 @@ export class AuthService {
     await sendEmail({ to: email, subject: 'OTP Verification', text: `Your OTP is: ${otp}` });
 
     logMessage('info', LOGGER_MESSAGES.USER_CREATED, { userId: user._id });
-    return { userId: user._id, message: USER_MESSAGES.OTP_SENT };
+    return { userId: user._id };
   }
 
   async resendOtp(userId: string) {
@@ -47,7 +47,7 @@ export class AuthService {
       sendEmail({ to: user.email, subject: 'OTP Verification', text: `Your OTP is: ${otp}` })
     ]);
 
-    return { message: USER_MESSAGES.OTP_RESENT, userId };
+    return { userId };
   }
 
   async verifyEmail(userId: string, otp: string) {
@@ -56,7 +56,7 @@ export class AuthService {
 
     await updateUserById(userId, { isVerified: true });
     await redis.del(`otp:${userId}`);
-    return { message: USER_MESSAGES.EMAIL_VERIFIED };
+    return { userId };
   }
 
   async login(email: string, password: string) {
@@ -65,14 +65,10 @@ export class AuthService {
       throw Exceptions.Unauthorized(USER_MESSAGES.INVALID_CREDENTIALS);
     }
     if (!user.isVerified) throw Exceptions.Forbidden(USER_MESSAGES.EMAIL_NOT_VERIFIED);
-    // if (!user.isActive) throw Exceptions.Forbidden(USER_MESSAGES.ACCOUNT_INACTIVE);
-
+    await User.updateOne({ _id: user._id }, { $set: { isActive: true } });
     const accessToken = generateToken(user._id.toString(), 'user');
-    user.isActive= true;
-    await user.save();
 
     return {
-      message: USER_MESSAGES.LOGIN_SUCCESS,
       accessToken,
       user: { id: user._id, name: user.name, email: user.email },
     };
@@ -95,7 +91,7 @@ export class AuthService {
       sendEmail({ to: email, subject: 'Password Reset OTP', text: `Your OTP is: ${otp}` }),
     ]);
 
-    return { message: USER_MESSAGES.OTP_SENT, userId: user._id };
+    return { userId: user._id };
   }
 
   async resetPassword(userId: string, otp: string, newPassword: string) {
@@ -124,7 +120,7 @@ export class AuthService {
       redis.del(`otp:reset:attempts:${userId}`),
     ]);
 
-    return { message: USER_MESSAGES.PASSWORD_RESET_SUCCESS };
+    return { userId };
   }
 
   async changePassword(userId: string, oldPass: string, newPass: string) {
@@ -137,13 +133,13 @@ export class AuthService {
     const hashed = await hashPassword(newPass);
     await updateUserById(userId, { password: hashed });
 
-    return { message: USER_MESSAGES.PASSWORD_CHANGED_SUCCESS };
+    return { userId };
   }
 
   async getProfile(userId: string) {
-    const user = await User.findById(userId).select('-password');
+    const user = await User.findById(userId).select('-password').lean();
     if (!user) throw Exceptions.NotFound(USER_MESSAGES.USER_NOT_FOUND);
-    return user;
+    return { id: user._id, name: user.name, email: user.email, isActive: user.isActive, isVerified: user.isVerified };
   }
 
   async editProfile(userId: string, data: { name?: string; email?: string }) {
@@ -160,7 +156,7 @@ export class AuthService {
       ...(data.email && { email: data.email }),
     });
 
-    return { message: USER_MESSAGES.PROFILE_UPDATED_SUCCESS };
+    return { userId };
   }
 
   async logout(userId: string) {
@@ -168,6 +164,6 @@ export class AuthService {
     if (!user) throw Exceptions.NotFound(USER_MESSAGES.USER_NOT_FOUND);
 
     await updateUserById(userId, { isActive: false });
-    return { message: USER_MESSAGES.LOGOUT_SUCCESS };
+    return { userId };
   }
 }

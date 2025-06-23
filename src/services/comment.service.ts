@@ -1,105 +1,62 @@
-import mongoose from 'mongoose';
-import { logMessage } from '../utils/logger';
-import { LOGGER_MESSAGES } from '../common/constants/logger.constant';
-import { USER_MESSAGES } from '../common/constants/userMessage';
-import { Exceptions } from '../common/customException';
-import { CommentQuery } from '../utils/query';
-import { logActivity } from '../utils/audit.util';
+import { logMessage } from '@utils/logger';
+import { LOGGER_MESSAGES } from '@common/constants/logger.constant';
+import { Exceptions } from '@common/exception/customException';
+import { CommentQuery } from '@utils/query';
+import { logActivity } from '@utils/audit.util';
 
 export class CommentService {
-async addComment(data: any, userId: string) {
-  try {
+  async addComment(data: any, userId: string) {
     const comment = await CommentQuery.create({ ...data, createdBy: userId });
-
-    await logActivity(
-      userId,
-      'ADD_COMMENT',
-      comment._id.toString(),
-      'Comment',
-      `Comment added on task ${data.taskId}`
-    );
-
+    await logActivity(userId, 'ADD_COMMENT', comment._id.toString(), 'Comment', `Comment added on task ${data.taskId}`);
     logMessage('info', LOGGER_MESSAGES.COMMENT_CREATED, { userId, commentId: comment._id });
-    return comment;
-  } catch (err: any) {
-    logMessage('error', LOGGER_MESSAGES.COMMENT_CREATION_FAILED, { error: err.message });
-    throw Exceptions.InternalServerError(USER_MESSAGES.CREATE_FAILED);
+    return { id: comment._id, content: comment.content, taskId: comment.taskId, parentId: comment.parentId, createdBy: comment.createdBy };
   }
-}
 
   async getCommentsByTask(taskId: string) {
-    try {
-      return await CommentQuery.findByTask(taskId);
-    } catch (err: any) {
-      throw Exceptions.InternalServerError(USER_MESSAGES.FETCH_FAILED);
-    }
+    return await CommentQuery.findByTask(taskId);
   }
 
   async getCommentById(commentId: string) {
-    try {
-      const comment = await CommentQuery.findById(commentId);
-      if (!comment) throw Exceptions.NotFound(USER_MESSAGES.NOT_FOUND);
-      return comment;
-    } catch (err: any) {
-      throw Exceptions.InternalServerError(USER_MESSAGES.FETCH_FAILED);
-    }
+    const comment = await CommentQuery.findById(commentId);
+    if (!comment) throw Exceptions.NotFound('Comment not found');
+    return comment;
   }
 
   async updateComment(commentId: string, userId: string, data: any) {
-    try {
-      const comment = await CommentQuery.findById(commentId);
-      if (!comment) throw Exceptions.NotFound(USER_MESSAGES.NOT_FOUND);
-      const createdById = typeof comment.createdBy === 'object' && comment.createdBy !== null
-        ? String(comment.createdBy._id)
-        : String(comment.createdBy);
-      if (createdById !== userId) {
-        throw Exceptions.Forbidden(USER_MESSAGES.UNAUTHORIZED);
-      }
-      Object.assign(comment, data);
-      await comment.save();
-      return comment;
-    } catch (err: any) {
-      throw Exceptions.InternalServerError(err.message);
+    const comment = await CommentQuery.findById(commentId);
+    if (!comment) throw Exceptions.NotFound('Comment not found');
+    // comment.createdBy may be populated or just an ObjectId
+    const createdById = comment.createdBy._id ? String(comment.createdBy._id) : String(comment.createdBy);
+    if (createdById !== userId) {
+      throw Exceptions.Forbidden('You are not authorized to update this comment');
     }
+    comment.content = data.content;
+    await comment.save();
+    return { id: comment._id, content: comment.content, taskId: comment.taskId, parentId: comment.parentId, createdBy: comment.createdBy };
   }
 
   async deleteComment(commentId: string, userId: string) {
-    try {
-      const comment = await CommentQuery.findById(commentId);
-      if (!comment) throw Exceptions.NotFound(USER_MESSAGES.NOT_FOUND);
-      if (String(comment.createdBy._id) !== userId) {
-        throw Exceptions.Forbidden(USER_MESSAGES.UNAUTHORIZED);
-      }
-      await comment.deleteOne();
-      return { message: USER_MESSAGES.DELETE_SUCCESS };
-    } catch (err: any) {
-      throw Exceptions.InternalServerError(err.message);
+    const comment = await CommentQuery.findById(commentId);
+    if (!comment) throw Exceptions.NotFound('Comment not found');
+    const createdById = comment.createdBy._id ? String(comment.createdBy._id) : String(comment.createdBy);
+    if (createdById !== userId) {
+      throw Exceptions.Forbidden('You are not authorized to delete this comment');
     }
+    await comment.deleteOne();
+    return { id: commentId };
   }
 
   async getAllComments(role: string, userId: string) {
-    try {
-      return role === 'admin'
-        ? await CommentQuery.findAll()
-        : await CommentQuery.findByUser(userId);
-    } catch (err: any) {
-      throw Exceptions.InternalServerError(USER_MESSAGES.FETCH_FAILED);
-    }
+    return role === 'admin'
+      ? await CommentQuery.findAll()
+      : await CommentQuery.findByUser(userId);
   }
 
   async getCommentsByUser(userId: string) {
-    try {
-      return await CommentQuery.findByUser(userId);
-    } catch (err: any) {
-      throw Exceptions.InternalServerError(USER_MESSAGES.FETCH_FAILED);
-    }
+    return await CommentQuery.findByUser(userId);
   }
 
   async getCommentsByTaskAndUser(taskId: string, userId: string) {
-    try {
-      return await CommentQuery.findByTaskAndUser(taskId, userId);
-    } catch (err: any) {
-      throw Exceptions.InternalServerError(USER_MESSAGES.FETCH_FAILED);
-    }
+    return await CommentQuery.findByTaskAndUser(taskId, userId);
   }
 }

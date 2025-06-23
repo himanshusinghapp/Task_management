@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { EMAIL_CONFIG } from '../config/email.config';
+import { EMAIL_CONFIG } from '@config/email.config';
 
 const transporter = nodemailer.createTransport({
   service: EMAIL_CONFIG.SERVICE,

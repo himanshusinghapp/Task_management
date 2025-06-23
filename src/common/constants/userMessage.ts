@@ -1,4 +1,5 @@
 export const USER_MESSAGES = {
+  USER_CREATED:'user is created',
   USER_EXISTS: 'User already exists',
   USER_NOT_FOUND: 'User not found',
   EMAIL_ALREADY_VERIFIED: 'Email already verified',
@@ -23,6 +24,7 @@ export const USER_MESSAGES = {
   ROLE_MISMATCH: 'Role mismatch',
   MISSING_USER_OR_OTP: 'Missing user ID or OTP',
   MISSING_USER_ID: 'Missing user ID',
+  PROFILE_FETCHED:'profile fetched',
 
   //admin messages
   ADMIN_EXISTS: 'Admin already exists',

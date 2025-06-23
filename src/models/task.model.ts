@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { TASK_PRIORITY, TASK_STATUS } from '../common/constants/task.constants';
+import { TASK_PRIORITY, TASK_STATUS } from '@common/constants/task.constants';
 
 export interface ITask extends Document {
   title: string;

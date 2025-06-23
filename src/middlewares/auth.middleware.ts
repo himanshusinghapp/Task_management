@@ -1,15 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { User } from '../models/user.model';
-import { Admin } from '../models/admin.model';
+import { User } from '@models/user.model';
+import { Admin } from '@models/admin.model';
 import dotenv from 'dotenv';
-import { HTTP_STATUS } from '../common/constants/httpStatus';
-import {USER_MESSAGES} from '../common/constants/userMessage';
+import { HTTP_STATUS } from '@common/constants/httpStatus';
+import {USER_MESSAGES} from '@common/constants/userMessage';
 
 
 dotenv.config();
 
-// Define AuthenticatedRequest interface extending Express Request
 export interface AuthenticatedRequest extends Request {
   user?: any;
 }
