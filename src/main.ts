@@ -23,7 +23,8 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs, {
   },
 }));
 app.use(routes);
-
-app.listen(process.env.PORT!, () => {
-  console.log('Server running on port 3000');
+const port = process.env.PORT
+app.listen(port, () => {
+  console.log(`Server running on port http://localhost:${port}/users`);
+  console.log(`Swagger is running on http://localhost:${port}/api-docs/`);
 });

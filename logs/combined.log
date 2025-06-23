@@ -69,3 +69,6 @@
 {"error":"Unauthorized access","level":"error","message":"Failed to delete comment","timestamp":"2025-06-23T07:41:35.926Z"}
 {"action":"ADD_COMMENT","level":"info","message":"Audit log created","targetId":"6859055ad4daf944c602694d","timestamp":"2025-06-23T07:42:18.319Z","userId":"6858f2d16d5b853c88a19222"}
 {"commentId":"6859055ad4daf944c602694d","level":"info","message":"Comment created","timestamp":"2025-06-23T07:42:18.322Z","userId":"6858f2d16d5b853c88a19222"}
+{"error":"User already exists","level":"error","message":"User creation failed","timestamp":"2025-06-23T13:40:07.176Z"}
+{"level":"info","message":"User created successfully","timestamp":"2025-06-23T13:40:20.032Z","userId":"68595940c47a9b205c8892f1"}
+{"email":"john.e@example.com","level":"info","message":"User created successfully","timestamp":"2025-06-23T13:40:20.033Z"}

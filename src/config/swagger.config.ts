@@ -9,7 +9,7 @@ export const swaggerOptions: Options = {
       version: '1.0.0',
       description: 'API documentation for admin and user authentication',
     },
-    servers: [{ url: 'http://localhost:3000' }],
+    servers: [{ url: process.env.SWAGGER_URL }],
     components: {
       securitySchemes: {
         bearerAuth: {

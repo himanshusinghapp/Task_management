@@ -25,3 +25,4 @@
 {"error":"Unauthorized access","level":"error","message":"Failed to update comment","timestamp":"2025-06-23T07:36:58.582Z"}
 {"error":"Unauthorized access","level":"error","message":"Failed to update comment","timestamp":"2025-06-23T07:38:01.371Z"}
 {"error":"Unauthorized access","level":"error","message":"Failed to delete comment","timestamp":"2025-06-23T07:41:35.926Z"}
+{"error":"User already exists","level":"error","message":"User creation failed","timestamp":"2025-06-23T13:40:07.176Z"}
