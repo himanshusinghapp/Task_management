@@ -57,6 +57,14 @@ export const USER_MESSAGES = {
   BLOCKED_TASK: 'Task is blocked by incomplete tasks',
   TASK_CREATE_FAILED: 'Failed to create task',
   INVALID_BLOCKED_BY:'invalid blocked id',
+  TASK_BLOCK_ITSELF: 'A task cannot block itself',
+  TASK_FETCHED: 'Task fetched successfully',
+  CYCLIC_DEPENDENCY: 'Cyclic dependency detected in blocked tasks',
+  TASK_LEVEL_FETCHED: 'Task level fetched successfully',
+  TASK_FILTERED: 'Tasks filtered by year and month successfully',
+  ATTACHMENT_UPLOADED: 'Attachment uploaded successfully',
+  MISSING_FILE: 'No file uploaded. Please upload a file.',
+  TASK_REMOVED: 'Task removed successfully',
 
   // project messages
   PROJECT_CREATED: 'Project created successfully',
@@ -64,10 +72,27 @@ export const USER_MESSAGES = {
   PROJECT_DELETED: 'Project deleted successfully',  
   CREATE_FAILED: 'Failed to create project',
   MEMBERS_ASSIGNED: 'Members assigned to project successfully',
+  MEMEBERS_REMOVED: 'Members removed from project successfully',
   ASSIGN_MEMBERS_FAILED: 'Failed to assign members to project',
   TASKS_ASSIGNED: 'Tasks assigned to project successfully',
   ASSIGN_TASKS_FAILED: 'Failed to assign tasks to project',
   FETCH_FAILED: 'Failed to fetch projects',
-
+  PROJECT_NAME_EXISTS: 'Project name already exists',
   DELETE_SUCCESS: 'Deleted successfully',
+  PROJECT_NOT_FOUND: 'Project not found',
+  PROJECT_FETCHED: 'Project fetched successfully',
+
+  // comment messages
+  COMMENT_NOT_FOUND: 'Comment not found',
+  UNAUTHORIZED_DELETE_COMMENT: 'You are not authorized to delete this comment',
+  UNAUTHORIZED_UPDATE_COMMENT: 'You are not authorized to update this comment',
+  COMMENT_ADDED: 'Comment added successfully',
+  COMMENT_UPDATED: 'Comment updated successfully',
+  COMMENT_DELETED: 'Comment deleted successfully',
+  COMMENT_FETCHED: 'Comments fetched successfully',
+
+  // safeQuery errors
+  TASK_QUERY_ERROR: 'An error occurred while processing the task query.',
+  PROJECT_QUERY_ERROR: 'An error occurred while processing the project query.',
+  COMMENT_QUERY_ERROR: 'An error occurred while processing the comment query.',
 };

@@ -26,8 +26,8 @@ export class TaskController {
 
       const result = await taskService.createTask(req.body, userId, role);
       if (!result ) {
-        logMessage('warn', LOGGER_MESSAGES.CREATE, { error: 'Task creation returned null task' });
-        return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json(ResponseHelper.error(HTTP_STATUS.INTERNAL_SERVER_ERROR, 'Task creation failed'));
+        logMessage('warn', LOGGER_MESSAGES.CREATE, { error: USER_MESSAGES.TASK_CREATE_FAILED });
+        return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json(ResponseHelper.error(HTTP_STATUS.INTERNAL_SERVER_ERROR, USER_MESSAGES.TASK_CREATE_FAILED));
       }
       logMessage('info', LOGGER_MESSAGES.CREATE, { taskId: result._id });
       return res
@@ -45,9 +45,9 @@ export class TaskController {
     try {
       const role = req.user?.role === 'admin' ? 'admin' : 'user';
       const userId = req.user?._id?.toString();
-      if (!userId) throw new Error('User ID not found');
+      if (!userId) throw new Error(USER_MESSAGES.MISSING_USER_ID);
       const tasks = await taskService.getAllTasks(role, userId);
-      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success('Tasks fetched successfully', tasks));
+      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.TASK_FETCHED, tasks));
     } catch (err: any) {
       return res
         .status(err.status || HTTP_STATUS.INTERNAL_SERVER_ERROR)
@@ -62,9 +62,9 @@ export class TaskController {
       if (error) return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, error.message));
       const role = req.user?.role === 'admin' ? 'admin' : 'user';
       const userId = req.user?._id?.toString();
-      if (!userId) throw new Error('User ID not found');
+      if (!userId) throw new Error(USER_MESSAGES.MISSING_USER_ID);
       const task = await taskService.getTaskById(taskId, role, userId);
-      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success('Task fetched successfully', task));
+      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.TASK_FETCHED, task));
     } catch (err: any) {
       return res
         .status(err.status || HTTP_STATUS.NOT_FOUND)
@@ -79,7 +79,7 @@ export class TaskController {
       if (paramError) return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, paramError.message));
       const role = req.user?.role === 'admin' ? 'admin' : 'user';
       const userId = req.user?._id?.toString();
-      if (!userId) throw new Error('User ID not found');
+      if (!userId) throw new Error(USER_MESSAGES.MISSING_USER_ID);
 
       const { error } = updateTaskDto.validate(req.body, { abortEarly: false });
       if (error) {
@@ -108,7 +108,7 @@ export class TaskController {
       if (error) return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, error.message));
       const role = req.user?.role === 'admin' ? 'admin' : 'user';
       const userId = req.user?._id?.toString();
-      if (!userId) throw new Error('User ID not found');
+      if (!userId) throw new Error(USER_MESSAGES.MISSING_USER_ID);
       const result = await taskService.deleteTask(taskId, role, userId);
       logMessage('info', LOGGER_MESSAGES.DELETE, { taskId });
       return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.TASK_DELETED, result));
@@ -127,16 +127,16 @@ export class TaskController {
       if (error) return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, error.message));
       const role = req.user?.role === 'admin' ? 'admin' : 'user';
       const userId = req.user?._id?.toString();
-      if (!userId) throw new Error('User ID not found');
+      if (!userId) throw new Error(USER_MESSAGES.MISSING_USER_ID);
       const files = (req.files as Express.Multer.File[])?.map((file) => file.path) || [];
       if (!files.length) {
         return res
           .status(HTTP_STATUS.BAD_REQUEST)
-          .json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, 'No files uploaded'));
+          .json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, USER_MESSAGES.MISSING_FILE));
       }
       const result = await taskService.uploadAttachments(taskId, files, role, userId);
       logMessage('info', LOGGER_MESSAGES.UPLOAD_ATTACHMENT, { taskId });
-      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success('Attachments uploaded successfully', result));
+      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.ATTACHMENT_UPLOADED, result));
     } catch (err: any) {
       logMessage('error', LOGGER_MESSAGES.UPLOAD_ATTACHMENT, { error: err.message });
       return res
@@ -150,14 +150,14 @@ export class TaskController {
       const { month, year } = req.query;
       const role = req.user?.role === 'admin' ? 'admin' : 'user';
       const userId = req.user?._id?.toString();
-      if (!userId) throw new Error('User ID not found');
+      if (!userId) throw new Error(USER_MESSAGES.MISSING_USER_ID);
       const result = await taskService.filterTasksByMonthYear(
         userId,
         role,
         Number(month),
         Number(year)
       );
-      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success('Tasks filtered by month/year', result));
+      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.TASK_FILTERED, result));
     } catch (err: any) {
       return res
         .status(err.status || HTTP_STATUS.BAD_REQUEST)
@@ -172,9 +172,9 @@ export class TaskController {
       if (error) return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, error.message));
       const role = req.user?.role === 'admin' ? 'admin' : 'user';
       const userId = req.user?._id?.toString();
-      if (!userId) throw new Error('User ID not found');
+      if (!userId) throw new Error(USER_MESSAGES.MISSING_USER_ID);
       const result = await taskService.getTasksByLabel(label, userId, role);
-      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success('Tasks fetched by label', result));
+      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.TASK_LEVEL_FETCHED, result));
     } catch (err: any) {
       return res
         .status(err.status || HTTP_STATUS.BAD_REQUEST)

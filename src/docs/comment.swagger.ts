@@ -264,7 +264,7 @@
 /**
  * @swagger
  * /comments/{commentId}:
- *   put:
+ *   patch:
  *     summary: Update a comment
  *     tags: [Comment]
  *     security:

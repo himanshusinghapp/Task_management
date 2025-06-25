@@ -7,11 +7,11 @@ import { USER_MESSAGES } from '@common/constants/userMessage';
 import { LOGGER_MESSAGES } from '@common/constants/logger.constant';
 import { logMessage } from '@utils/logger';
 import { Exceptions } from '@common/exception/customException';
-import { findAdminByEmail, findAdminById, findUserById, updateUserById, findUsers } from '@utils/query';
+import { adminQuery,userQuery} from '@utils/query';
 
 export class AdminService {
   async signup(name: string, email: string, password: string) {
-    const existing = await findAdminByEmail(email);
+    const existing = await adminQuery.findAdminByEmail(email);
     if (existing) throw Exceptions.BadRequest(USER_MESSAGES.ADMIN_EXISTS);
 
     const hashed = await hashPassword(password);
@@ -22,7 +22,7 @@ export class AdminService {
   }
 
   async login(email: string, password: string) {
-    const admin = await findAdminByEmail(email);
+    const admin = await adminQuery.findAdminByEmail(email);
     if (!admin) throw Exceptions.Unauthorized(USER_MESSAGES.INVALID_CREDENTIALS);
 
     const isMatch = await bcrypt.compare(password, admin.password);
@@ -38,24 +38,24 @@ export class AdminService {
   }
 
   async getAllUsers() {
-    const users = await findUsers();
+    const users = await adminQuery.findUsers();
     return users;
   }
 
   async blockUser(userId: string) {
-    const user = await findUserById(userId);
+    const user = await userQuery.findUserById(userId);
     if (!user) throw Exceptions.NotFound(USER_MESSAGES.USER_NOT_FOUND);
 
-    await updateUserById(userId, { isActive: false });
+    await userQuery.updateUserById(userId, { isVerified: false });
     logMessage('warn', LOGGER_MESSAGES.ADMIN_BLOCK_USER, { userId });
     return { userId };
   }
 
   async unblockUser(userId: string) {
-    const user = await findUserById(userId);
+    const user = await userQuery.findUserById(userId);
     if (!user) throw Exceptions.NotFound(USER_MESSAGES.USER_NOT_FOUND);
 
-    await updateUserById(userId, { isActive: true });
+    await userQuery.updateUserById(userId, { isVerified: true });
     logMessage('info', LOGGER_MESSAGES.ADMIN_UNBLOCK_USER, { userId });
     return { userId };
   }
@@ -72,14 +72,15 @@ export class AdminService {
   }
 
   async getProfile(adminId: string) {
-    const admin = await findAdminById(adminId);
+    const admin = await adminQuery.findAdminById(adminId);
     if (!admin) throw Exceptions.NotFound(USER_MESSAGES.ADMIN_NOT_FOUND);
     return { id: admin._id, name: admin.name, email: admin.email, isActive: admin.isActive };
   }
 
   async logout(adminId: string) {
-    const admin = await findAdminById(adminId);
+    const admin = await adminQuery.findAdminById(adminId);
     if (!admin) throw Exceptions.NotFound(USER_MESSAGES.ADMIN_NOT_FOUND);
+    await Admin.updateOne({ _id: adminId }, { $set: { isActive: false } });
     return { adminId };
   }
 }

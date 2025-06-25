@@ -33,7 +33,7 @@ export class ProjectController {
       const { error } = updateProjectDto.validate(req.body, { abortEarly: false });
       if (error) return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, error.details.map(e => e.message).join(', ')));
       const result = await projectService.updateProject(projectId, req.body);
-      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success('Project updated successfully', result));
+      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.PROJECT_UPDATED, result));
     } catch (err: any) {
       logMessage('error', LOGGER_MESSAGES.UPDATE, { error: err.message });
       return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, err.message));
@@ -46,7 +46,7 @@ export class ProjectController {
       const { error: paramError } = projectIdDto.validate({ projectId });
       if (paramError) return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, paramError.message));
       const result = await projectService.deleteProject(projectId);
-      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success('Project deleted successfully', result));
+      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.PROJECT_DELETED, result));
     } catch (err: any) {
       logMessage('error', LOGGER_MESSAGES.DELETE, { error: err.message });
       return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, err.message));
@@ -61,7 +61,7 @@ export class ProjectController {
       const { error } = assignMembersDto.validate(req.body, { abortEarly: false });
       if (error) return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, error.details.map(e => e.message).join(', ')));
       const result = await projectService.assignMembers(projectId, req.body.memberIds);
-      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success('Members assigned successfully', result));
+      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.MEMBERS_ASSIGNED, result));
     } catch (err: any) {
       logMessage('error', LOGGER_MESSAGES.ASSIGN_MEMBERS_FAILED, { error: err.message });
       return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, err.message));
@@ -76,7 +76,7 @@ export class ProjectController {
       const { error } = removeMembersDto.validate(req.body, { abortEarly: false });
       if (error) return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, error.details.map(e => e.message).join(', ')));
       const result = await projectService.removeMembers(projectId, req.body.memberIds);
-      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success('Members removed successfully', result));
+      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.MEMEBERS_REMOVED, result));
     } catch (err: any) {
       logMessage('error', LOGGER_MESSAGES.UPDATE, { error: err.message });
       return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, err.message));
@@ -91,7 +91,7 @@ export class ProjectController {
       const { error } = assignTasksDto.validate(req.body, { abortEarly: false });
       if (error) return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, error.details.map(e => e.message).join(', ')));
       const result = await projectService.assignTasks(projectId, req.body.taskIds);
-      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success('Tasks assigned successfully', result));
+      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.TASKS_ASSIGNED, result));
     } catch (err: any) {
       logMessage('error', LOGGER_MESSAGES.ASSIGN_TASKS_FAILED, { error: err.message });
       return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, err.message));
@@ -106,7 +106,7 @@ export class ProjectController {
       const { error } = removeTasksDto.validate(req.body, { abortEarly: false });
       if (error) return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, error.details.map(e => e.message).join(', ')));
       const result = await projectService.removeTasks(projectId, req.body.taskIds);
-      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success('Tasks removed successfully', result));
+      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.TASK_REMOVED, result));
     } catch (err: any) {
       logMessage('error', LOGGER_MESSAGES.UPDATE, { error: err.message });
       return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, err.message));
@@ -116,7 +116,7 @@ export class ProjectController {
   async getProjects(req: AuthenticatedRequest, res: Response) {
     try {
       const result = await projectService.getProjectsByUser(req.user._id, req.user.role);
-      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success('Projects fetched successfully', result));
+      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.PROJECT_FETCHED, result));
     } catch (err: any) {
       return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json(ResponseHelper.error(HTTP_STATUS.INTERNAL_SERVER_ERROR, err.message));
     }

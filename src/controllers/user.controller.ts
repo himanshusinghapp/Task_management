@@ -1,6 +1,6 @@
 // user.controller.ts
 import { Request, Response } from 'express';
-import { AuthService } from '@services/user.service';
+import { UserService } from '@services/user.service';
 import { signupSchema } from '@dto/signup.dto';
 import { loginSchema } from '@dto/login.dto';
 import { forgotPasswordSchema } from '@dto/forgot-password.dto';
@@ -14,16 +14,16 @@ import { LOGGER_MESSAGES } from '@common/constants/logger.constant';
 import { AuthenticatedRequest } from '@middlewares/auth.middleware';
 import { ResponseHelper } from '@common/helpers/response.helper';
 
-const authService = new AuthService();
+const userService = new UserService();
 
-export class AuthController {
+export class UserController {
   async signup(req: Request, res: Response) {
     try {
       const { error, value } = signupSchema.validate(req.body);
       if (error) return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, error.message));
 
       const { name, email, password } = value;
-      const result = await authService.signup(name, email, password);
+      const result = await userService.signup(name, email, password);
       logMessage('info', LOGGER_MESSAGES.USER_CREATED, { email });
       return res.status(HTTP_STATUS.CREATED).json(ResponseHelper.created(USER_MESSAGES.USER_CREATED, result));
     } catch (err: any) {
@@ -41,7 +41,7 @@ export class AuthController {
           .json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, USER_MESSAGES.MISSING_USER_ID));
       }
 
-      const result = await authService.resendOtp(userId);
+      const result = await userService.resendOtp(userId);
       return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.OTP_RESENT, result));
     } catch (err: any) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, err.message));
@@ -57,7 +57,7 @@ export class AuthController {
           .json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, USER_MESSAGES.MISSING_USER_OR_OTP));
       }
 
-      const result = await authService.verifyEmail(userId, otp);
+      const result = await userService.verifyEmail(userId, otp);
       return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.EMAIL_VERIFIED, result));
     } catch (err: any) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, err.message));
@@ -70,7 +70,7 @@ export class AuthController {
       if (error) return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, error.message));
 
       const { email, password } = value;
-      const result = await authService.login(email, password);
+      const result = await userService.login(email, password);
       return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.LOGIN_SUCCESS, result));
     } catch (err: any) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, err.message));
@@ -82,7 +82,7 @@ export class AuthController {
       const { error, value } = forgotPasswordSchema.validate(req.body);
       if (error) return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, error.message));
 
-      const result = await authService.forgotPassword(value.email);
+      const result = await userService.forgotPassword(value.email);
       return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.OTP_SENT, result));
     } catch (err: any) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, err.message));
@@ -94,7 +94,7 @@ export class AuthController {
       const { error, value } = resetPasswordSchema.validate(req.body);
       if (error) return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, error.message));
 
-      const result = await authService.resetPassword(value.userId, value.otp, value.newPassword);
+      const result = await userService.resetPassword(value.userId, value.otp, value.newPassword);
       return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.PASSWORD_RESET_SUCCESS, result));
     } catch (err: any) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, err.message));
@@ -107,7 +107,7 @@ export class AuthController {
       if (error) return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, error.message));
 
       const user = req.user;
-      const result = await authService.changePassword(user._id, value.oldPassword, value.newPassword);
+      const result = await userService.changePassword(user._id, value.oldPassword, value.newPassword);
       return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.PASSWORD_CHANGED_SUCCESS, result));
     } catch (err: any) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, err.message));
@@ -117,7 +117,7 @@ export class AuthController {
   async getProfile(req: AuthenticatedRequest, res: Response) {
     try {
       const user = req.user;
-      const profile = await authService.getProfile(user._id);
+      const profile = await userService.getProfile(user._id);
       return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.PROFILE_FETCHED, profile));
     } catch (err: any) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, err.message));
@@ -130,7 +130,7 @@ export class AuthController {
       const { error, value } = editProfileSchema.validate(req.body);
       if (error) return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, error.message));
 
-      const result = await authService.editProfile(user._id, value);
+      const result = await userService.editProfile(user._id, value);
       return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.PROFILE_UPDATED_SUCCESS, result));
     } catch (err: any) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, err.message));
@@ -140,7 +140,7 @@ export class AuthController {
   async logout(req: AuthenticatedRequest, res: Response) {
     try {
       const user = req.user;
-      const result = await authService.logout(user._id);
+      const result = await userService.logout(user._id);
       return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.LOGOUT_SUCCESS, result));
     } catch (err: any) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, err.message));

@@ -5,9 +5,9 @@ export const swaggerOptions: Options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Admin/User Auth API',
+      title: 'Task management',
       version: '1.0.0',
-      description: 'API documentation for admin and user authentication',
+      description: 'API documentation for task management',
     },
     servers: [{ url: process.env.SWAGGER_URL }],
     components: {

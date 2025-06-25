@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { AuthController } from '@controllers/user.controller';
+import { UserController } from '@controllers/user.controller';
 import { authenticate } from '@middlewares/auth.middleware';
 
 const router = Router();
-const controller = new AuthController();
+const controller = new UserController();
 
 router.post('/signup', controller.signup);
 router.post('/resend-otp', controller.resendOtp);

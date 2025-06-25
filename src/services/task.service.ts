@@ -1,12 +1,13 @@
 import { logActivity } from '@utils/audit.util';
 import { USER_MESSAGES } from '@common/constants/userMessage';
 import { Exceptions } from '@common/exception/customException';
-import { findTaskById, findAllTasks, findTasksByLabel } from '@utils/query';
+import { taskQuery } from '@utils/query';
 import { Task } from '@models/task.model';
 import { createTaskDto, updateTaskDto } from '@dto/task.dto';
 import { validateObjectId } from '@common/helpers/validateObjectId';
 import { getPagination } from '@common/helpers/pagination';
 import { validateObjectIdArray } from '@common/helpers/validateObjectIdArray';
+import { TASK_STATUS } from '@/common/constants/task.constants';
 
 export class TaskService {
   async createTask(data: any, createdBy: string, role: string) {
@@ -22,7 +23,7 @@ export class TaskService {
 
     if (value.blockedBy?.length) {
       if (value.blockedBy.some((id: string) => id === value._id)) {
-        throw Exceptions.BadRequest('A task cannot block itself.');
+        throw Exceptions.BadRequest(USER_MESSAGES.TASK_BLOCK_ITSELF);
       }
       validateObjectIdArray(value.blockedBy, 'blockedBy');
       const blockers = await Task.find({ _id: { $in: value.blockedBy } });
@@ -31,7 +32,7 @@ export class TaskService {
       }
       const cycle = blockers.some((blocker) => blocker.blockedBy?.includes(value._id));
       if (cycle) {
-        throw Exceptions.BadRequest('Cyclic dependency detected in blockedBy.');
+        throw Exceptions.BadRequest(USER_MESSAGES.CYCLIC_DEPENDENCY);
       }
     }
 
@@ -54,13 +55,12 @@ export class TaskService {
 
   async getAllTasks(role: string, userId: string, query: any = {}) {
     const { skip, limit } = getPagination(query);
-    return await findAllTasks(role, userId).skip(skip).limit(limit);
+    return await taskQuery.findAllTasksPaginated(role, userId, skip, limit);
   }
 
   async getTaskById(taskId: string, role: string, userId: string) {
     validateObjectId(taskId, 'task ID');
-    const task = await findTaskById(taskId);
-    if (!task) throw Exceptions.NotFound(USER_MESSAGES.NOT_FOUND);
+    const task = await this.taskFunc(taskId);
     const assignedToId = typeof task.assignedTo === 'object' && task.assignedTo !== null
       ? String(task.assignedTo._id)
       : String(task.assignedTo);
@@ -76,16 +76,13 @@ export class TaskService {
     if (error) {
       throw Exceptions.BadRequest(error.details.map((e) => e.message).join(', '));
     }
-
-    const task = await findTaskById(taskId);
-    if (!task) throw Exceptions.NotFound(USER_MESSAGES.NOT_FOUND);
-
+    const task = await this.taskFunc(taskId);
     if (role !== 'admin' && value.assignedTo) {
       throw Exceptions.Forbidden(USER_MESSAGES.ADMIN_ONLY_ASSIGN);
     }
-    if (value.status === 'in-progress' && task.blockedBy?.length) {
+    if (value.status === TASK_STATUS.IN_PROGRESS && task.blockedBy?.length) {
       const blockers = await Task.find({ _id: { $in: task.blockedBy } });
-      const incomplete = blockers.filter((b) => b.status !== 'completed');
+      const incomplete = blockers.filter((b) => b.status !== TASK_STATUS.COMPLETED);
       if (incomplete.length) {
         throw Exceptions.BadRequest(USER_MESSAGES.BLOCKED_TASK);
       }
@@ -100,7 +97,7 @@ export class TaskService {
 
     const oldStatus = task.status;
     Object.assign(task, value);
-    await task.save();
+    await task.updateOne(value, { runValidators: true });
 
     // Log activity
     if (value.status && value.status !== oldStatus) {
@@ -126,8 +123,7 @@ export class TaskService {
 
   async deleteTask(taskId: string, role: string, userId: string) {
     validateObjectId(taskId, 'task ID');
-    const task = await findTaskById(taskId);
-    if (!task) throw Exceptions.NotFound(USER_MESSAGES.NOT_FOUND);
+    const task = await this.taskFunc(taskId);
     if (role !== 'admin' && String(task.assignedTo) !== userId) {
       throw Exceptions.Forbidden(USER_MESSAGES.ACCESS_DENIED);
     }
@@ -144,14 +140,16 @@ export class TaskService {
 
   async uploadAttachments(taskId: string, files: string[], role: string, userId: string) {
     validateObjectId(taskId, 'task ID');
-    const task = await findTaskById(taskId);
-    if (!task) throw Exceptions.NotFound(USER_MESSAGES.NOT_FOUND);
-    if (role !== 'admin' && String(task.assignedTo) !== userId) {
+    const task = await this.taskFunc(taskId);
+        const assignedToId = typeof task.assignedTo === 'object' && task.assignedTo !== null
+      ? String(task.assignedTo._id)
+      : String(task.assignedTo);
+    if (role !== 'admin' && assignedToId !== userId) {
       throw Exceptions.Forbidden(USER_MESSAGES.ACCESS_DENIED);
     }
     if (!task.attachments) task.attachments = [];
     task.attachments.push(...files);
-    await task.save();
+    await task.updateOne({ attachments: task.attachments }, { runValidators: true });
 
     await logActivity(
       userId,
@@ -182,6 +180,11 @@ export class TaskService {
     if (!label || label.trim().length === 0) {
       throw Exceptions.BadRequest('Label cannot be empty');
     }
-    return await findTasksByLabel(label.trim(), userId, role);
+    return await taskQuery.findTasksByLabel(label.trim(), userId, role);
+  }
+  async taskFunc(taskId: string) {
+    const task = await taskQuery.findTaskById(taskId);
+    if (!task) throw Exceptions.NotFound(USER_MESSAGES.NOT_FOUND);
+    return task;
   }
 }

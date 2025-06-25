@@ -8,13 +8,13 @@ import { USER_MESSAGES } from '@common/constants/userMessage';
 import { OTP_EXPIRY, OTP_ATTEMPT_THRESHOLD, OTP_ATTEMPT_BLOCK_TIME } from '@common/constants/user.constant';
 import { logMessage } from '@utils/logger';
 import { LOGGER_MESSAGES } from '@common/constants/logger.constant';
-import { findUserByEmail, findUserById, updateUserById } from '@utils/query';
+import { userQuery } from '@utils/query';
 import { Exceptions } from '@common/exception/customException';
 import { User } from '@models/user.model';
 
-export class AuthService {
+export class UserService {
   async signup(name: string, email: string, password: string) {
-    const existing = await findUserByEmail(email);
+    const existing = await userQuery.findUserByEmail(email);
     if (existing) throw Exceptions.BadRequest(USER_MESSAGES.USER_EXISTS);
 
     const hashed = await hashPassword(password);
@@ -29,8 +29,7 @@ export class AuthService {
   }
 
   async resendOtp(userId: string) {
-    const user = await findUserById(userId);
-    if (!user) throw Exceptions.NotFound(USER_MESSAGES.USER_NOT_FOUND);
+    const user = await this.userFunc(userId);
     if (user.isVerified) throw Exceptions.BadRequest(USER_MESSAGES.EMAIL_ALREADY_VERIFIED);
 
     const attemptsKey = `otp:attempts:${userId}`;
@@ -54,20 +53,19 @@ export class AuthService {
     const storedOtp = await redis.get(`otp:${userId}`);
     if (!storedOtp || storedOtp !== otp) throw Exceptions.BadRequest(USER_MESSAGES.OTP_EXPIRED);
 
-    await updateUserById(userId, { isVerified: true });
+    await userQuery.updateUserById(userId, { isVerified: true });
     await redis.del(`otp:${userId}`);
     return { userId };
   }
 
   async login(email: string, password: string) {
-    const user = await findUserByEmail(email);
+    const user = await userQuery.findUserByEmail(email);
     if (!user || !(await bcrypt.compare(password, user.password))) {
       throw Exceptions.Unauthorized(USER_MESSAGES.INVALID_CREDENTIALS);
     }
     if (!user.isVerified) throw Exceptions.Forbidden(USER_MESSAGES.EMAIL_NOT_VERIFIED);
-    await User.updateOne({ _id: user._id }, { $set: { isActive: true } });
+    await userQuery.updateUserById(user._id.toString(), { isVerified: true });
     const accessToken = generateToken(user._id.toString(), 'user');
-
     return {
       accessToken,
       user: { id: user._id, name: user.name, email: user.email },
@@ -75,7 +73,7 @@ export class AuthService {
   }
 
   async forgotPassword(email: string) {
-    const user = await findUserByEmail(email);
+    const user = await userQuery.findUserByEmail(email);
     if (!user) throw Exceptions.NotFound(USER_MESSAGES.USER_NOT_FOUND);
     if (!user.isVerified) throw Exceptions.Forbidden(USER_MESSAGES.EMAIL_NOT_VERIFIED);
 
@@ -112,7 +110,7 @@ export class AuthService {
     }
 
     const hashed = await hashPassword(newPassword);
-    await updateUserById(userId, { password: hashed });
+    await userQuery.updateUserById(userId, { password: hashed });
 
     await Promise.all([
       redis.del(`otp:reset:${userId}`),
@@ -124,14 +122,13 @@ export class AuthService {
   }
 
   async changePassword(userId: string, oldPass: string, newPass: string) {
-    const user = await findUserById(userId);
-    if (!user) throw Exceptions.NotFound(USER_MESSAGES.USER_NOT_FOUND);
+    const user = await this.userFunc(userId);
 
     const isMatch = await bcrypt.compare(oldPass, user.password);
     if (!isMatch) throw Exceptions.BadRequest('Old password is incorrect');
 
     const hashed = await hashPassword(newPass);
-    await updateUserById(userId, { password: hashed });
+    await userQuery.updateUserById(userId, { password: hashed });
 
     return { userId };
   }
@@ -143,15 +140,13 @@ export class AuthService {
   }
 
   async editProfile(userId: string, data: { name?: string; email?: string }) {
-    const user = await findUserById(userId);
-    if (!user) throw Exceptions.NotFound(USER_MESSAGES.USER_NOT_FOUND);
-
+    const user = await this.userFunc(userId);
     if (data.email && data.email !== user.email) {
-      const emailExists = await findUserByEmail(data.email);
+      const emailExists = await userQuery.findUserByEmail(data.email);
       if (emailExists) throw Exceptions.BadRequest(USER_MESSAGES.EMAIL_ALREADY_IN_USE);
     }
 
-    await updateUserById(userId, {
+    await userQuery.updateUserById(userId, {
       ...(data.name && { name: data.name }),
       ...(data.email && { email: data.email }),
     });
@@ -160,10 +155,14 @@ export class AuthService {
   }
 
   async logout(userId: string) {
-    const user = await findUserById(userId);
-    if (!user) throw Exceptions.NotFound(USER_MESSAGES.USER_NOT_FOUND);
-
-    await updateUserById(userId, { isActive: false });
+    const user = await this.userFunc(userId);
+    await userQuery.updateUserById(userId, { isActive: false });
     return { userId };
+  }
+
+  async userFunc(userId:string){
+    const user = await userQuery.findUserById(userId);
+    if (!user) throw Exceptions.NotFound(USER_MESSAGES.USER_NOT_FOUND);
+    return user;
   }
 }

@@ -72,3 +72,36 @@
 {"error":"User already exists","level":"error","message":"User creation failed","timestamp":"2025-06-23T13:40:07.176Z"}
 {"level":"info","message":"User created successfully","timestamp":"2025-06-23T13:40:20.032Z","userId":"68595940c47a9b205c8892f1"}
 {"email":"john.e@example.com","level":"info","message":"User created successfully","timestamp":"2025-06-23T13:40:20.033Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-24T17:14:52.411Z"}
+{"adminId":"68585431868d34a39efe52f1","level":"info","message":"Admin logged in","timestamp":"2025-06-24T17:14:58.360Z"}
+{"action":"CREATE_TASK","level":"info","message":"Audit log created","targetId":"685add662ebf0eff9c205ccd","timestamp":"2025-06-24T17:16:22.860Z","userId":"68585431868d34a39efe52f1"}
+{"level":"info","message":"Task created","taskId":"685add662ebf0eff9c205ccd","timestamp":"2025-06-24T17:16:22.871Z"}
+{"level":"info","message":"User created successfully","timestamp":"2025-06-25T05:51:15.133Z","userId":"685b8e4fe8b462db9b712c0e"}
+{"email":"user123@yopmail.com","level":"info","message":"User created successfully","timestamp":"2025-06-25T05:51:15.136Z"}
+{"adminId":"685b8ecde8b462db9b712c16","level":"info","message":"Admin account created","timestamp":"2025-06-25T05:53:17.939Z"}
+{"adminId":"685b8ecde8b462db9b712c16","level":"info","message":"Admin logged in","timestamp":"2025-06-25T05:53:35.864Z"}
+{"createdBy":"685b8ecde8b462db9b712c16","level":"info","message":"Project created","projectId":"685b8f33e8b462db9b712c1b","timestamp":"2025-06-25T05:54:59.857Z"}
+{"error":"invalid blocked id","level":"error","message":"Task created","timestamp":"2025-06-25T05:56:38.626Z"}
+{"level":"info","message":"User created successfully","timestamp":"2025-06-25T05:57:08.614Z","userId":"685b8fb1e8b462db9b712c27"}
+{"email":"user12@yopmail.com","level":"info","message":"User created successfully","timestamp":"2025-06-25T05:57:08.615Z"}
+{"action":"CREATE_TASK","level":"info","message":"Audit log created","targetId":"685b8ff1e8b462db9b712c2b","timestamp":"2025-06-25T05:58:09.123Z","userId":"685b8ecde8b462db9b712c16"}
+{"level":"info","message":"Task created","taskId":"685b8ff1e8b462db9b712c2b","timestamp":"2025-06-25T05:58:09.141Z"}
+{"error":"Access denied","level":"error","message":"upload attachment","timestamp":"2025-06-25T06:02:21.503Z"}
+{"error":"Access denied","level":"error","message":"upload attachment","timestamp":"2025-06-25T06:03:26.171Z"}
+{"error":"Access denied","level":"error","message":"upload attachment","timestamp":"2025-06-25T06:04:00.880Z"}
+{"action":"UPDATE_TASK_STATUS","level":"info","message":"Audit log created","targetId":"685b8ff1e8b462db9b712c2b","timestamp":"2025-06-25T06:04:12.694Z","userId":"685b8fb1e8b462db9b712c27"}
+{"level":"info","message":"Task updated","taskId":"685b8ff1e8b462db9b712c2b","timestamp":"2025-06-25T06:04:12.694Z"}
+{"error":"Access denied","level":"error","message":"upload attachment","timestamp":"2025-06-25T06:05:09.789Z"}
+{"error":"Access denied","level":"error","message":"upload attachment","timestamp":"2025-06-25T06:07:22.415Z"}
+{"action":"ADD_COMMENT","level":"info","message":"Audit log created","targetId":"685b928ce8b462db9b712c6b","timestamp":"2025-06-25T06:09:16.676Z","userId":"685b8fb1e8b462db9b712c27"}
+{"commentId":"685b928ce8b462db9b712c6b","level":"info","message":"Comment created","timestamp":"2025-06-25T06:09:16.678Z","userId":"685b8fb1e8b462db9b712c27"}
+{"error":"Access denied","level":"error","message":"upload attachment","timestamp":"2025-06-25T06:15:15.967Z"}
+{"error":"Access denied","level":"error","message":"upload attachment","timestamp":"2025-06-25T06:22:11.716Z"}
+{"action":"ADD_COMMENT","level":"info","message":"Audit log created","targetId":"685b961c4f8ea4259fb70447","timestamp":"2025-06-25T06:24:28.032Z","userId":"685b8fb1e8b462db9b712c27"}
+{"commentId":"685b961c4f8ea4259fb70447","level":"info","message":"Comment created","timestamp":"2025-06-25T06:24:28.032Z","userId":"685b8fb1e8b462db9b712c27"}
+{"error":"Access denied","level":"error","message":"upload attachment","timestamp":"2025-06-25T06:25:49.881Z"}
+{"action":"UPLOAD_ATTACHMENT","level":"info","message":"Audit log created","targetId":"685b8ff1e8b462db9b712c2b","timestamp":"2025-06-25T06:31:25.170Z","userId":"685b8fb1e8b462db9b712c27"}
+{"level":"info","message":"upload attachment","taskId":"685b8ff1e8b462db9b712c2b","timestamp":"2025-06-25T06:31:25.172Z"}
+{"adminId":"685b8ecde8b462db9b712c16","level":"info","message":"Admin logged in","timestamp":"2025-06-25T06:32:05.776Z"}
+{"action":"CREATE_TASK","level":"info","message":"Audit log created","targetId":"685b982f0bd306d2bae1798f","timestamp":"2025-06-25T06:33:19.819Z","userId":"685b8ecde8b462db9b712c16"}
+{"level":"info","message":"Task created","taskId":"685b982f0bd306d2bae1798f","timestamp":"2025-06-25T06:33:19.833Z"}

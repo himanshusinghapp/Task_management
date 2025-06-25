@@ -1,34 +1,32 @@
 import { logMessage } from '@utils/logger';
 import { LOGGER_MESSAGES } from '@common/constants/logger.constant';
 import { Exceptions } from '@common/exception/customException';
-import { CommentQuery } from '@utils/query';
+import { commentQuery } from '@utils/query';
 import { logActivity } from '@utils/audit.util';
+import { USER_MESSAGES } from '@/common/constants/userMessage';
 
 export class CommentService {
   async addComment(data: any, userId: string) {
-    const comment = await CommentQuery.create({ ...data, createdBy: userId });
+    const comment = await commentQuery.create({ ...data, createdBy: userId });
     await logActivity(userId, 'ADD_COMMENT', comment._id.toString(), 'Comment', `Comment added on task ${data.taskId}`);
     logMessage('info', LOGGER_MESSAGES.COMMENT_CREATED, { userId, commentId: comment._id });
     return { id: comment._id, content: comment.content, taskId: comment.taskId, parentId: comment.parentId, createdBy: comment.createdBy };
   }
 
   async getCommentsByTask(taskId: string) {
-    return await CommentQuery.findByTask(taskId);
+    return await commentQuery.findByTask(taskId);
   }
 
   async getCommentById(commentId: string) {
-    const comment = await CommentQuery.findById(commentId);
-    if (!comment) throw Exceptions.NotFound('Comment not found');
+    const comment = await this.commentExists(commentId);
     return comment;
   }
 
   async updateComment(commentId: string, userId: string, data: any) {
-    const comment = await CommentQuery.findById(commentId);
-    if (!comment) throw Exceptions.NotFound('Comment not found');
-    // comment.createdBy may be populated or just an ObjectId
+    const comment = await this.commentExists(commentId);
     const createdById = comment.createdBy._id ? String(comment.createdBy._id) : String(comment.createdBy);
     if (createdById !== userId) {
-      throw Exceptions.Forbidden('You are not authorized to update this comment');
+      throw Exceptions.Forbidden(USER_MESSAGES.UNAUTHORIZED_UPDATE_COMMENT);
     }
     comment.content = data.content;
     await comment.save();
@@ -36,11 +34,10 @@ export class CommentService {
   }
 
   async deleteComment(commentId: string, userId: string) {
-    const comment = await CommentQuery.findById(commentId);
-    if (!comment) throw Exceptions.NotFound('Comment not found');
+    const comment = await this.commentExists(commentId);
     const createdById = comment.createdBy._id ? String(comment.createdBy._id) : String(comment.createdBy);
     if (createdById !== userId) {
-      throw Exceptions.Forbidden('You are not authorized to delete this comment');
+      throw Exceptions.Forbidden(USER_MESSAGES.UNAUTHORIZED_DELETE_COMMENT);
     }
     await comment.deleteOne();
     return { id: commentId };
@@ -48,15 +45,21 @@ export class CommentService {
 
   async getAllComments(role: string, userId: string) {
     return role === 'admin'
-      ? await CommentQuery.findAll()
-      : await CommentQuery.findByUser(userId);
+      ? await commentQuery.findAll()
+      : await commentQuery.findByUser(userId);
   }
 
   async getCommentsByUser(userId: string) {
-    return await CommentQuery.findByUser(userId);
+    return await commentQuery.findByUser(userId);
   }
 
   async getCommentsByTaskAndUser(taskId: string, userId: string) {
-    return await CommentQuery.findByTaskAndUser(taskId, userId);
+    return await commentQuery.findByTaskAndUser(taskId, userId);
+  }
+
+  async commentExists(commentId: string) {
+    const comment = await commentQuery.findById(commentId);
+    if (!comment) throw Exceptions.NotFound(USER_MESSAGES.COMMENT_NOT_FOUND);
+    return comment;
   }
 }
