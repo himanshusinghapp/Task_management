@@ -18,12 +18,12 @@ export class CommentService {
   }
 
   async getCommentById(commentId: string) {
-    const comment = await this.commentExists(commentId);
+    const comment = await this.checkComment(commentId);
     return comment;
   }
 
   async updateComment(commentId: string, userId: string, data: any) {
-    const comment = await this.commentExists(commentId);
+    const comment = await this.checkComment(commentId);
     const createdById = comment.createdBy._id ? String(comment.createdBy._id) : String(comment.createdBy);
     if (createdById !== userId) {
       throw Exceptions.Forbidden(USER_MESSAGES.UNAUTHORIZED_UPDATE_COMMENT);
@@ -34,7 +34,7 @@ export class CommentService {
   }
 
   async deleteComment(commentId: string, userId: string) {
-    const comment = await this.commentExists(commentId);
+    const comment = await this.checkComment(commentId);
     const createdById = comment.createdBy._id ? String(comment.createdBy._id) : String(comment.createdBy);
     if (createdById !== userId) {
       throw Exceptions.Forbidden(USER_MESSAGES.UNAUTHORIZED_DELETE_COMMENT);
@@ -57,7 +57,7 @@ export class CommentService {
     return await commentQuery.findByTaskAndUser(taskId, userId);
   }
 
-  async commentExists(commentId: string) {
+  async checkComment(commentId: string) {
     const comment = await commentQuery.findById(commentId);
     if (!comment) throw Exceptions.NotFound(USER_MESSAGES.COMMENT_NOT_FOUND);
     return comment;

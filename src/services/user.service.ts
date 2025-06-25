@@ -29,7 +29,7 @@ export class UserService {
   }
 
   async resendOtp(userId: string) {
-    const user = await this.userFunc(userId);
+    const user = await this.checkUser(userId);
     if (user.isVerified) throw Exceptions.BadRequest(USER_MESSAGES.EMAIL_ALREADY_VERIFIED);
 
     const attemptsKey = `otp:attempts:${userId}`;
@@ -122,7 +122,7 @@ export class UserService {
   }
 
   async changePassword(userId: string, oldPass: string, newPass: string) {
-    const user = await this.userFunc(userId);
+    const user = await this.checkUser(userId);
 
     const isMatch = await bcrypt.compare(oldPass, user.password);
     if (!isMatch) throw Exceptions.BadRequest('Old password is incorrect');
@@ -140,7 +140,7 @@ export class UserService {
   }
 
   async editProfile(userId: string, data: { name?: string; email?: string }) {
-    const user = await this.userFunc(userId);
+    const user = await this.checkUser(userId);
     if (data.email && data.email !== user.email) {
       const emailExists = await userQuery.findUserByEmail(data.email);
       if (emailExists) throw Exceptions.BadRequest(USER_MESSAGES.EMAIL_ALREADY_IN_USE);
@@ -155,12 +155,12 @@ export class UserService {
   }
 
   async logout(userId: string) {
-    const user = await this.userFunc(userId);
+    const user = await this.checkUser(userId);
     await userQuery.updateUserById(userId, { isActive: false });
     return { userId };
   }
 
-  async userFunc(userId:string){
+  async checkUser(userId:string){
     const user = await userQuery.findUserById(userId);
     if (!user) throw Exceptions.NotFound(USER_MESSAGES.USER_NOT_FOUND);
     return user;

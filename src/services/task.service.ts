@@ -60,7 +60,7 @@ export class TaskService {
 
   async getTaskById(taskId: string, role: string, userId: string) {
     validateObjectId(taskId, 'task ID');
-    const task = await this.taskFunc(taskId);
+    const task = await this.checkTask(taskId);
     const assignedToId = typeof task.assignedTo === 'object' && task.assignedTo !== null
       ? String(task.assignedTo._id)
       : String(task.assignedTo);
@@ -76,7 +76,7 @@ export class TaskService {
     if (error) {
       throw Exceptions.BadRequest(error.details.map((e) => e.message).join(', '));
     }
-    const task = await this.taskFunc(taskId);
+    const task = await this.checkTask(taskId);
     if (role !== 'admin' && value.assignedTo) {
       throw Exceptions.Forbidden(USER_MESSAGES.ADMIN_ONLY_ASSIGN);
     }
@@ -123,7 +123,7 @@ export class TaskService {
 
   async deleteTask(taskId: string, role: string, userId: string) {
     validateObjectId(taskId, 'task ID');
-    const task = await this.taskFunc(taskId);
+    const task = await this.checkTask(taskId);
     if (role !== 'admin' && String(task.assignedTo) !== userId) {
       throw Exceptions.Forbidden(USER_MESSAGES.ACCESS_DENIED);
     }
@@ -140,7 +140,7 @@ export class TaskService {
 
   async uploadAttachments(taskId: string, files: string[], role: string, userId: string) {
     validateObjectId(taskId, 'task ID');
-    const task = await this.taskFunc(taskId);
+    const task = await this.checkTask(taskId);
         const assignedToId = typeof task.assignedTo === 'object' && task.assignedTo !== null
       ? String(task.assignedTo._id)
       : String(task.assignedTo);
@@ -182,7 +182,7 @@ export class TaskService {
     }
     return await taskQuery.findTasksByLabel(label.trim(), userId, role);
   }
-  async taskFunc(taskId: string) {
+  async checkTask(taskId: string) {
     const task = await taskQuery.findTaskById(taskId);
     if (!task) throw Exceptions.NotFound(USER_MESSAGES.NOT_FOUND);
     return task;
