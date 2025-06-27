@@ -12,6 +12,10 @@ export const swaggerOptions: Options = {
     servers: [{ url: process.env.SWAGGER_URL }],
     components: {
       securitySchemes: {
+        basicAuth: {
+          type: 'http',
+          scheme: 'basic',
+        },
         bearerAuth: {
           type: 'http',
           scheme: 'bearer',

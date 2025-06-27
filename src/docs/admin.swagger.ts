@@ -50,25 +50,6 @@
 
 /**
  * @swagger
- * /admin/signup:
- *   post:
- *     summary: Signup a new admin
- *     tags: [Admin]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/AdminSignup'
- *     responses:
- *       201:
- *         description: Admin created successfully
- *       400:
- *         description: Validation error
- */
-
-/**
- * @swagger
  * /admin/login:
  *   post:
  *     summary: Login admin

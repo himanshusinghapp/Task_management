@@ -5,6 +5,7 @@ import swaggerUi from 'swagger-ui-express';
 import { swaggerOptions } from './config/swagger.config';
 import { connectDB } from './config/db';
 import routes from './routes';
+import { errorHandler } from '@middlewares/errorHandler';
 
 dotenv.config();
 const app = express();
@@ -23,6 +24,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs, {
   },
 }));
 app.use(routes);
+app.use(errorHandler);
 const port = process.env.PORT
 app.listen(port, () => {
   console.log(`Server running on port http://localhost:${port}/users`);

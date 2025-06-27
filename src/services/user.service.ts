@@ -13,41 +13,86 @@ import { Exceptions } from '@common/exception/customException';
 import { User } from '@models/user.model';
 
 export class UserService {
-  async signup(name: string, email: string, password: string) {
-    const existing = await userQuery.findUserByEmail(email);
-    if (existing) throw Exceptions.BadRequest(USER_MESSAGES.USER_EXISTS);
+  // async signup(name: string, email: string, password: string) {
+  //   const existing = await userQuery.findUserByEmail(email);
+  //   if (existing) throw Exceptions.BadRequest(USER_MESSAGES.USER_EXISTS);
 
-    const hashed = await hashPassword(password);
-    const user = await User.create({ name, email, password: hashed });
+  //   const hashed = await hashPassword(password);
+  //   const user = await User.create({ name, email, password: hashed });
 
-    const otp = generateOtp();
-    await redis.set(`otp:${user._id}`, otp, 'EX', OTP_EXPIRY);
-    await sendEmail({ to: email, subject: 'OTP Verification', text: `Your OTP is: ${otp}` });
+  //   const otp = generateOtp();
+  //   await redis.set(`otp:${user._id}`, otp, 'EX', OTP_EXPIRY);
+  //   await sendEmail({ to: email, subject: 'OTP Verification', text: `Your OTP is: ${otp}` });
 
-    logMessage('info', LOGGER_MESSAGES.USER_CREATED, { userId: user._id });
-    return { userId: user._id };
-  }
+  //   logMessage('info', LOGGER_MESSAGES.USER_CREATED, { userId: user._id });
+  //   return { userId: user._id };
+  // }
 
-  async resendOtp(userId: string) {
-    const user = await this.checkUser(userId);
-    if (user.isVerified) throw Exceptions.BadRequest(USER_MESSAGES.EMAIL_ALREADY_VERIFIED);
+  // async resendOtp(userId: string) {
+  //   const user = await this.checkUser(userId);
+  //   if (user.isVerified) throw Exceptions.BadRequest(USER_MESSAGES.EMAIL_ALREADY_VERIFIED);
 
-    const attemptsKey = `otp:attempts:${userId}`;
-    const sentCount = Number(await redis.get(attemptsKey)) || 0;
-    if (sentCount >= OTP_ATTEMPT_THRESHOLD) {
-      logMessage('warn', LOGGER_MESSAGES.OTP_REQUEST_LIMIT, { userId });
-      throw Exceptions.TooManyRequests(USER_MESSAGES.OTP_LIMIT_REACHED);
-    }
+  //   const attemptsKey = `otp:attempts:${userId}`;
+  //   const sentCount = Number(await redis.get(attemptsKey)) || 0;
+  //   if (sentCount >= OTP_ATTEMPT_THRESHOLD) {
+  //     logMessage('warn', LOGGER_MESSAGES.OTP_REQUEST_LIMIT, { userId });
+  //     throw Exceptions.TooManyRequests(USER_MESSAGES.OTP_LIMIT_REACHED);
+  //   }
 
-    const otp = generateOtp();
-    await Promise.all([
-      redis.set(`otp:${userId}`, otp, 'EX', OTP_EXPIRY),
-      redis.set(attemptsKey, String(sentCount + 1), 'EX', OTP_ATTEMPT_BLOCK_TIME),
-      sendEmail({ to: user.email, subject: 'OTP Verification', text: `Your OTP is: ${otp}` })
-    ]);
+  //   const otp = generateOtp();
+  //   await Promise.all([
+  //     redis.set(`otp:${userId}`, otp, 'EX', OTP_EXPIRY),
+  //     redis.set(attemptsKey, String(sentCount + 1), 'EX', OTP_ATTEMPT_BLOCK_TIME),
+  //     sendEmail({ to: user.email, subject: 'OTP Verification', text: `Your OTP is: ${otp}` })
+  //   ]);
 
-    return { userId };
-  }
+  //   return { userId };
+  // }
+
+  async requestEmailVerification(email: string) {
+  const existingUser = await userQuery.findUserByEmail(email);
+  if (existingUser) throw Exceptions.BadRequest(USER_MESSAGES.USER_EXISTS);
+
+  const otpKey = `otp:${email}`;
+  const attemptKey = `otp:attempts:${email}`;
+  const sentCount = Number(await redis.get(attemptKey)) || 0;
+
+  if (sentCount >= OTP_ATTEMPT_THRESHOLD)
+    throw Exceptions.TooManyRequests(USER_MESSAGES.OTP_LIMIT_REACHED);
+
+  const otp = generateOtp();
+  await Promise.all([
+    redis.set(otpKey, otp, 'EX', OTP_EXPIRY),
+    redis.set(attemptKey, `${sentCount + 1}`, 'EX', OTP_ATTEMPT_BLOCK_TIME),
+    sendEmail({ to: email, subject: 'Email Verification', text: `Your OTP is: ${otp}` }),
+  ]);
+
+  return { message: 'OTP sent to your email.' };
+}
+async verifyEmailOtp(email: string, otp: string) {
+  const storedOtp = await redis.get(`otp:${email}`);
+  if (!storedOtp || storedOtp !== otp)
+    throw Exceptions.BadRequest(USER_MESSAGES.INVALID_OR_EXPIRED_OTP);
+
+  await redis.del(`otp:${email}`);
+  await redis.set(`verified:${email}`, 'true', 'EX', 900); // valid for 15 minutes
+
+  return { message: 'Email verified. You can now sign up.' };
+}
+async completeSignup(name: string, email: string, password: string) {
+  const isVerified = await redis.get(`verified:${email}`);
+  if (!isVerified) throw Exceptions.BadRequest(USER_MESSAGES.EMAIL_NOT_VERIFIED);
+
+  const existingUser = await userQuery.findUserByEmail(email);
+  if (existingUser) throw Exceptions.BadRequest(USER_MESSAGES.USER_EXISTS);
+
+  const hashedPassword = await hashPassword(password);
+  const user = await User.create({ name, email, password: hashedPassword, isVerified: true });
+
+  await redis.del(`verified:${email}`);
+  return { userId: user._id };
+}
+
 
   async verifyEmail(userId: string, otp: string) {
     const storedOtp = await redis.get(`otp:${userId}`);
@@ -64,7 +109,7 @@ export class UserService {
       throw Exceptions.Unauthorized(USER_MESSAGES.INVALID_CREDENTIALS);
     }
     if (!user.isVerified) throw Exceptions.Forbidden(USER_MESSAGES.EMAIL_NOT_VERIFIED);
-    await userQuery.updateUserById(user._id.toString(), { isVerified: true });
+    await userQuery.updateUserById(user._id.toString(), { isActive: true });
     const accessToken = generateToken(user._id.toString(), 'user');
     return {
       accessToken,

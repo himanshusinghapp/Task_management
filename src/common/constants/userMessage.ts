@@ -25,6 +25,7 @@ export const USER_MESSAGES = {
   MISSING_USER_OR_OTP: 'Missing user ID or OTP',
   MISSING_USER_ID: 'Missing user ID',
   PROFILE_FETCHED:'profile fetched',
+  INVALID_OR_EXPIRED_OTP:'expired otp',
 
   //admin messages
   ADMIN_EXISTS: 'Admin already exists',

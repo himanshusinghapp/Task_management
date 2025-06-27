@@ -4,9 +4,10 @@ import { Exceptions } from '@common/exception/customException';
 import { commentQuery } from '@utils/query';
 import { logActivity } from '@utils/audit.util';
 import { USER_MESSAGES } from '@/common/constants/userMessage';
+import { CommentDto, UpdateCommentDto } from '@dto/comment.dto';
 
 export class CommentService {
-  async addComment(data: any, userId: string) {
+  async addComment(data: CommentDto, userId: string) {
     const comment = await commentQuery.create({ ...data, createdBy: userId });
     await logActivity(userId, 'ADD_COMMENT', comment._id.toString(), 'Comment', `Comment added on task ${data.taskId}`);
     logMessage('info', LOGGER_MESSAGES.COMMENT_CREATED, { userId, commentId: comment._id });
@@ -22,7 +23,7 @@ export class CommentService {
     return comment;
   }
 
-  async updateComment(commentId: string, userId: string, data: any) {
+  async updateComment(commentId: string, userId: string, data: UpdateCommentDto) {
     const comment = await this.checkComment(commentId);
     const createdById = comment.createdBy._id ? String(comment.createdBy._id) : String(comment.createdBy);
     if (createdById !== userId) {

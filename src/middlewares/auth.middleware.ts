@@ -13,33 +13,34 @@ export interface AuthenticatedRequest extends Request {
   user?: any;
 }
 
+export class Auth {
+  static authenticate(type: 'user' | 'admin') {
+    return async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+      try {
+        const token = req.headers.authorization?.split(' ')[1];
+        if (!token)
+          return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: USER_MESSAGES.UNAUTHORIZED });
 
-export const authenticate = (type: 'user' | 'admin') => {
-  return async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    try {
-      const token = req.headers.authorization?.split(' ')[1];
-      if (!token)
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: USER_MESSAGES.UNAUTHORIZED });
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
 
-      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+        const Model = type === 'user' ? User : Admin;
+        const user = await (Model as typeof User).findById(decoded.id);
 
-      const Model = type === 'user' ? User : Admin;
-      const user = await (Model as typeof User).findById(decoded.id);
+        if (!user)
+          return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: USER_MESSAGES.USER_NOT_FOUND });
 
-      if (!user)
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: USER_MESSAGES.USER_NOT_FOUND });
+        if (!user.isActive)
+          return res.status(HTTP_STATUS.FORBIDDEN).json({ message: USER_MESSAGES.ACCOUNT_INACTIVE });
 
-      if (!user.isActive)
-        return res.status(HTTP_STATUS.FORBIDDEN).json({ message: USER_MESSAGES.ACCOUNT_INACTIVE });
+        if (decoded.role !== type)
+          return res.status(HTTP_STATUS.FORBIDDEN).json({ message: USER_MESSAGES.ROLE_MISMATCH });
 
-      if (decoded.role !== type)
-        return res.status(HTTP_STATUS.FORBIDDEN).json({ message: USER_MESSAGES.ROLE_MISMATCH });
-
-      req.user = user;
-      req.user.role = decoded.role;
-      next();
-    } catch (err) {
-      return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: USER_MESSAGES.INVALID_TOKEN });
-    }
-  };
-};
+        req.user = user;
+        req.user.role = decoded.role;
+        next();
+      } catch (err) {
+        return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: USER_MESSAGES.INVALID_TOKEN });
+      }
+    };
+  }
+}

@@ -50,18 +50,27 @@
 
 /**
  * @swagger
- * /user/signup:
+ * /user/request-email-verification:
  *   post:
- *     summary: Signup a new user
+ *     summary: Request OTP for email verification before signup
  *     tags: [User]
+ *     security:
+ *       - basicAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/UserSignup'
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: john.doe@example.com
+ *             required:
+ *               - email
  *     responses:
- *       201:
+ *       200:
  *         description: OTP sent to email
  *       400:
  *         description: Validation error
@@ -69,10 +78,12 @@
 
 /**
  * @swagger
- * /user/resend-otp:
+ * /user/verify-email-otp:
  *   post:
- *     summary: Resend OTP for email verification
+ *     summary: Verify email with OTP
  *     tags: [User]
+ *     security:
+ *       - basicAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -80,45 +91,58 @@
  *           schema:
  *             type: object
  *             properties:
- *               userId:
+ *               email:
  *                 type: string
- *                 example: 12345
- *             required:
- *               - userId
- *     responses:
- *       200:
- *         description: OTP resent successfully
- *       400:
- *         description: Missing user ID
- */
-
-/**
- * @swagger
- * /user/verify-email:
- *   post:
- *     summary: Verify email using OTP
- *     tags: [User]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               userId:
- *                 type: string
- *                 example: 12345
+ *                 format: email
+ *                 example: john.doe@example.com
  *               otp:
  *                 type: string
  *                 example: 123456
  *             required:
- *               - userId
+ *               - email
  *               - otp
  *     responses:
  *       200:
- *         description: Email verified successfully
+ *         description: Email verified
  *       400:
  *         description: Invalid or expired OTP
+ */
+
+/**
+ * @swagger
+ * /user/complete-signup:
+ *   post:
+ *     summary: Complete signup after email verification
+ *     tags: [User]
+ *     security:
+ *       - basicAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: John Doe
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: john.doe@example.com
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 example: Password123!
+ *             required:
+ *               - name
+ *               - email
+ *               - password
+ *     responses:
+ *       201:
+ *         description: User created
+ *       400:
+ *         description: Validation error
  */
 
 /**
@@ -127,6 +151,8 @@
  *   post:
  *     summary: Login user
  *     tags: [User]
+ *     security:
+ *       - basicAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -146,6 +172,8 @@
  *   post:
  *     summary: Send OTP to reset password
  *     tags: [User]
+ *     security:
+ *       - basicAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -172,6 +200,8 @@
  *   post:
  *     summary: Reset password using OTP
  *     tags: [User]
+ *     security:
+ *       - basicAuth: []
  *     requestBody:
  *       required: true
  *       content:

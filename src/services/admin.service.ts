@@ -22,10 +22,15 @@ export class AdminService {
   }
 
   async login(email: string, password: string) {
+    // console.log('Login email:', email);
     const admin = await adminQuery.findAdminByEmail(email);
+    // console.log('Admin from DB:', admin);
     if (!admin) throw Exceptions.Unauthorized(USER_MESSAGES.INVALID_CREDENTIALS);
 
+    // console.log('Login password:', password);
+    // console.log('Stored hash:', admin.password);
     const isMatch = await bcrypt.compare(password, admin.password);
+    // console.log('Password match:', isMatch);
     if (!isMatch) throw Exceptions.Unauthorized(USER_MESSAGES.INVALID_CREDENTIALS);
 
     const accessToken = generateToken(admin._id.toString(), 'admin');

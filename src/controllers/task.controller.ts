@@ -1,30 +1,23 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { TaskService } from '@services/task.service';
 import { HTTP_STATUS } from '@common/constants/httpStatus';
 import { USER_MESSAGES } from '@common/constants/userMessage';
 import { logMessage } from '@utils/logger';
 import { LOGGER_MESSAGES } from '@common/constants/logger.constant';
-import { createTaskDto, updateTaskDto ,labelDto,taskIdDto} from '@dto/task.dto';
 import { AuthenticatedRequest } from '@middlewares/auth.middleware';
 import { ResponseHelper } from '@common/helpers/response.helper';
+import { CreateTaskDto, UpdateTaskDto } from '@dto/task.dto';
 
 const taskService = new TaskService();
 
 export class TaskController {
-  async createTask(req: AuthenticatedRequest, res: Response) {
+  async createTask(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const userId = req.user?._id?.toString();
       const role = req.user?.role === 'admin' ? 'admin' : 'user';
       if (!userId) throw new Error('User ID not found');
-
-      const { error } = createTaskDto.validate(req.body, { abortEarly: false });
-      if (error) {
-        return res
-          .status(HTTP_STATUS.BAD_REQUEST)
-          .json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, error.details.map((e) => e.message).join(', ')));
-      }
-
-      const result = await taskService.createTask(req.body, userId, role);
+      const body: CreateTaskDto = req.body;
+      const result = await taskService.createTask(body, userId, role);
       if (!result ) {
         logMessage('warn', LOGGER_MESSAGES.CREATE, { error: USER_MESSAGES.TASK_CREATE_FAILED });
         return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json(ResponseHelper.error(HTTP_STATUS.INTERNAL_SERVER_ERROR, USER_MESSAGES.TASK_CREATE_FAILED));
@@ -35,13 +28,11 @@ export class TaskController {
         .json(ResponseHelper.created(USER_MESSAGES.TASK_CREATED, result));
     } catch (err: any) {
       logMessage('error', LOGGER_MESSAGES.CREATE, { error: err.message });
-      return res
-        .status(err.status || HTTP_STATUS.INTERNAL_SERVER_ERROR)
-        .json(ResponseHelper.error(err.status || HTTP_STATUS.INTERNAL_SERVER_ERROR, err.message));
+      return next(err);
     }
   }
 
-  async getAllTasks(req: AuthenticatedRequest, res: Response) {
+  async getAllTasks(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const role = req.user?.role === 'admin' ? 'admin' : 'user';
       const userId = req.user?._id?.toString();
@@ -49,63 +40,44 @@ export class TaskController {
       const tasks = await taskService.getAllTasks(role, userId);
       return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.TASK_FETCHED, tasks));
     } catch (err: any) {
-      return res
-        .status(err.status || HTTP_STATUS.INTERNAL_SERVER_ERROR)
-        .json(ResponseHelper.error(err.status || HTTP_STATUS.INTERNAL_SERVER_ERROR, err.message));
+      return next(err);
     }
   }
 
-  async getTaskById(req: AuthenticatedRequest, res: Response) {
+  async getTaskById(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const { taskId } = req.params;
-      const { error } = taskIdDto.validate({ taskId });
-      if (error) return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, error.message));
       const role = req.user?.role === 'admin' ? 'admin' : 'user';
       const userId = req.user?._id?.toString();
       if (!userId) throw new Error(USER_MESSAGES.MISSING_USER_ID);
       const task = await taskService.getTaskById(taskId, role, userId);
       return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.TASK_FETCHED, task));
     } catch (err: any) {
-      return res
-        .status(err.status || HTTP_STATUS.NOT_FOUND)
-        .json(ResponseHelper.error(err.status || HTTP_STATUS.NOT_FOUND, err.message));
+      return next(err);
     }
   }
 
-  async updateTask(req: AuthenticatedRequest, res: Response) {
+  async updateTask(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const { taskId } = req.params;
-      const { error: paramError } = taskIdDto.validate({ taskId });
-      if (paramError) return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, paramError.message));
       const role = req.user?.role === 'admin' ? 'admin' : 'user';
       const userId = req.user?._id?.toString();
       if (!userId) throw new Error(USER_MESSAGES.MISSING_USER_ID);
-
-      const { error } = updateTaskDto.validate(req.body, { abortEarly: false });
-      if (error) {
-        return res
-          .status(HTTP_STATUS.BAD_REQUEST)
-          .json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, error.details.map((e) => e.message).join(', ')));
-      }
-
-      const updated = await taskService.updateTask(taskId, userId, role, req.body);
+      const body: UpdateTaskDto = req.body;
+      const updated = await taskService.updateTask(taskId, userId, role, body);
       logMessage('info', LOGGER_MESSAGES.UPDATE, { taskId: taskId });
       return res
         .status(HTTP_STATUS.OK)
         .json(ResponseHelper.success(USER_MESSAGES.TASK_UPDATED, updated));
     } catch (err: any) {
       logMessage('error', LOGGER_MESSAGES.UPDATE, { error: err.message });
-      return res
-        .status(err.status || HTTP_STATUS.BAD_REQUEST)
-        .json(ResponseHelper.error(err.status || HTTP_STATUS.BAD_REQUEST, err.message));
+      return next(err);
     }
   }
 
-  async deleteTask(req: AuthenticatedRequest, res: Response) {
+  async deleteTask(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const { taskId } = req.params;
-      const { error } = taskIdDto.validate({ taskId });
-      if (error) return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, error.message));
       const role = req.user?.role === 'admin' ? 'admin' : 'user';
       const userId = req.user?._id?.toString();
       if (!userId) throw new Error(USER_MESSAGES.MISSING_USER_ID);
@@ -114,17 +86,13 @@ export class TaskController {
       return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.TASK_DELETED, result));
     } catch (err: any) {
       logMessage('error', LOGGER_MESSAGES.DELETE, { error: err.message });
-      return res
-        .status(err.status || HTTP_STATUS.BAD_REQUEST)
-        .json(ResponseHelper.error(err.status || HTTP_STATUS.BAD_REQUEST, err.message));
+      return next(err);
     }
   }
 
-  async uploadAttachments(req: AuthenticatedRequest, res: Response) {
+  async uploadAttachments(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const { taskId } = req.params;
-      const { error } = taskIdDto.validate({ taskId });
-      if (error) return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, error.message));
       const role = req.user?.role === 'admin' ? 'admin' : 'user';
       const userId = req.user?._id?.toString();
       if (!userId) throw new Error(USER_MESSAGES.MISSING_USER_ID);
@@ -139,13 +107,11 @@ export class TaskController {
       return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.ATTACHMENT_UPLOADED, result));
     } catch (err: any) {
       logMessage('error', LOGGER_MESSAGES.UPLOAD_ATTACHMENT, { error: err.message });
-      return res
-        .status(err.status || HTTP_STATUS.BAD_REQUEST)
-        .json(ResponseHelper.error(err.status || HTTP_STATUS.BAD_REQUEST, err.message));
+      return next(err);
     }
   }
 
-  async filterTasksByMonthYear(req: AuthenticatedRequest, res: Response) {
+  async filterTasksByMonthYear(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const { month, year } = req.query;
       const role = req.user?.role === 'admin' ? 'admin' : 'user';
@@ -159,26 +125,20 @@ export class TaskController {
       );
       return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.TASK_FILTERED, result));
     } catch (err: any) {
-      return res
-        .status(err.status || HTTP_STATUS.BAD_REQUEST)
-        .json(ResponseHelper.error(err.status || HTTP_STATUS.BAD_REQUEST, err.message));
+      return next(err);
     }
   }
 
-  async getTasksByLabel(req: AuthenticatedRequest, res: Response) {
+  async getTasksByLabel(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const { label } = req.params;
-      const { error } = labelDto.validate({ label });
-      if (error) return res.status(HTTP_STATUS.BAD_REQUEST).json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, error.message));
       const role = req.user?.role === 'admin' ? 'admin' : 'user';
       const userId = req.user?._id?.toString();
       if (!userId) throw new Error(USER_MESSAGES.MISSING_USER_ID);
       const result = await taskService.getTasksByLabel(label, userId, role);
       return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.TASK_LEVEL_FETCHED, result));
     } catch (err: any) {
-      return res
-        .status(err.status || HTTP_STATUS.BAD_REQUEST)
-        .json(ResponseHelper.error(err.status || HTTP_STATUS.BAD_REQUEST, err.message));
+      return next(err);
     }
   }
 }

@@ -7,7 +7,7 @@ export interface ApiResponse<T = any> {
 export class ResponseHelper {
   static success<T>(message: string, data?: T): ApiResponse<T> {
     return {
-      statusCode: 200,
+      statusCode:200,
       message,
       data,
     };

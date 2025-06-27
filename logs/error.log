@@ -36,3 +36,26 @@
 {"error":"Access denied","level":"error","message":"upload attachment","timestamp":"2025-06-25T06:15:15.967Z"}
 {"error":"Access denied","level":"error","message":"upload attachment","timestamp":"2025-06-25T06:22:11.716Z"}
 {"error":"Access denied","level":"error","message":"upload attachment","timestamp":"2025-06-25T06:25:49.881Z"}
+{"error":"User already exists","level":"error","message":"User creation failed","timestamp":"2025-06-25T12:09:45.266Z"}
+{"error":"User already exists","level":"error","message":"User creation failed","timestamp":"2025-06-25T12:35:15.729Z"}
+{"error":"User already exists","level":"error","message":"User creation failed","timestamp":"2025-06-25T17:58:59.039Z"}
+{"error":"User already exists","level":"error","message":"User creation failed","timestamp":"2025-06-26T05:11:40.654Z"}
+{"error":"User already exists","level":"error","message":"User creation failed","timestamp":"2025-06-26T05:14:01.443Z"}
+{"error":"User already exists","level":"error","message":"User creation failed","timestamp":"2025-06-26T06:00:53.799Z"}
+{"error":"Admin already exists","level":"error","message":"Admin signup failed","timestamp":"2025-06-26T06:01:14.742Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T07:47:34.723Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T07:49:25.479Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T07:49:47.749Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T07:49:50.803Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T07:54:01.825Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T07:54:40.826Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T08:03:49.978Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T08:05:20.836Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T08:09:10.886Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T08:09:27.811Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T08:10:16.441Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T08:11:45.927Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T08:19:38.771Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T08:19:46.467Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T09:41:13.939Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T09:49:25.614Z"}
