@@ -1,0 +1,139 @@
+{"error":"Missing credentials for \"PLAIN\"","level":"error","message":"User creation failed","timestamp":"2025-06-22T17:43:02.995Z"}
+{"error":"User already exists","level":"error","message":"User creation failed","timestamp":"2025-06-22T17:46:59.078Z"}
+{"error":"Missing credentials for \"PLAIN\"","level":"error","message":"User creation failed","timestamp":"2025-06-22T17:47:47.357Z"}
+{"error":"User already exists","level":"error","message":"User creation failed","timestamp":"2025-06-22T17:48:03.369Z"}
+{"error":"Missing credentials for \"PLAIN\"","level":"error","message":"User creation failed","timestamp":"2025-06-22T17:53:16.878Z"}
+{"error":"Missing credentials for \"PLAIN\"","level":"error","message":"User creation failed","timestamp":"2025-06-22T17:56:46.364Z"}
+{"error":"Missing credentials for \"PLAIN\"","level":"error","message":"User creation failed","timestamp":"2025-06-22T18:03:25.352Z"}
+{"error":"Missing credentials for \"PLAIN\"","level":"error","message":"User creation failed","timestamp":"2025-06-22T18:08:51.366Z"}
+{"level":"info","message":"User created successfully","timestamp":"2025-06-22T18:10:07.604Z","userId":"685846ff92f3ee864e7ea02e"}
+{"email":"revaa@yopmail.com","level":"info","message":"User created successfully","timestamp":"2025-06-22T18:10:07.606Z"}
+{"error":"User already exists","level":"error","message":"User creation failed","timestamp":"2025-06-22T18:57:02.409Z"}
+{"level":"info","message":"User created successfully","timestamp":"2025-06-22T18:57:17.837Z","userId":"68585204e55c7d9ba3d7c7c1"}
+{"email":"jon.doe@example.com","level":"info","message":"User created successfully","timestamp":"2025-06-22T18:57:17.838Z"}
+{"level":"info","message":"User created successfully","timestamp":"2025-06-22T18:58:55.165Z","userId":"68585263e55c7d9ba3d7c7c4"}
+{"email":"revctfcf@yopmail.com","level":"info","message":"User created successfully","timestamp":"2025-06-22T18:58:55.166Z"}
+{"adminId":"68585431868d34a39efe52f1","level":"info","message":"Admin account created","timestamp":"2025-06-22T19:06:25.088Z"}
+{"error":"Admin already exists","level":"error","message":"Admin signup failed","timestamp":"2025-06-22T19:06:54.072Z"}
+{"adminId":"68585431868d34a39efe52f1","level":"info","message":"Admin logged in","timestamp":"2025-06-22T19:07:26.737Z"}
+{"adminId":"68585431868d34a39efe52f1","level":"info","message":"Admin logged in","timestamp":"2025-06-22T19:12:39.396Z"}
+{"adminId":"68585431868d34a39efe52f1","level":"info","message":"Admin logged in","timestamp":"2025-06-22T19:14:07.501Z"}
+{"adminId":"68585431868d34a39efe52f1","level":"info","message":"Admin logged in","timestamp":"2025-06-22T19:15:13.791Z"}
+{"level":"warn","message":"Blocked a user","timestamp":"2025-06-22T19:16:49.562Z","userId":"68585204e55c7d9ba3d7c7c1"}
+{"level":"info","message":"Unblocked a user","timestamp":"2025-06-22T19:17:03.498Z","userId":"68585204e55c7d9ba3d7c7c1"}
+{"adminId":"68585431868d34a39efe52f1","level":"info","message":"Admin logged in","timestamp":"2025-06-22T19:18:25.062Z"}
+{"adminId":"68585431868d34a39efe52f1","level":"info","message":"Admin logged in","timestamp":"2025-06-22T19:19:46.717Z"}
+{"adminId":"68585431868d34a39efe52f1","level":"info","message":"Admin logged in","timestamp":"2025-06-22T19:31:45.434Z"}
+{"adminId":"68585431868d34a39efe52f1","level":"info","message":"Admin logged in","timestamp":"2025-06-22T19:37:20.963Z"}
+{"adminId":"68585431868d34a39efe52f1","level":"info","message":"Admin logged in","timestamp":"2025-06-22T19:41:34.719Z"}
+{"error":"Failed to create task","level":"error","message":"Task created","timestamp":"2025-06-22T19:42:08.463Z"}
+{"adminId":"68585431868d34a39efe52f1","level":"info","message":"Admin logged in","timestamp":"2025-06-23T05:22:24.698Z"}
+{"adminId":"68585431868d34a39efe52f1","level":"info","message":"Admin logged in","timestamp":"2025-06-23T05:32:14.843Z"}
+{"adminId":"68585431868d34a39efe52f1","level":"info","message":"Admin logged in","timestamp":"2025-06-23T06:04:41.844Z"}
+{"adminId":"68585431868d34a39efe52f1","level":"info","message":"Admin logged in","timestamp":"2025-06-23T06:06:27.788Z"}
+{"error":"only admin can assign","level":"error","message":"Task created","timestamp":"2025-06-23T06:09:17.672Z"}
+{"adminId":"68585431868d34a39efe52f1","level":"info","message":"Admin logged in","timestamp":"2025-06-23T06:11:41.202Z"}
+{"error":"only admin can assign","level":"error","message":"Task created","timestamp":"2025-06-23T06:12:10.753Z"}
+{"error":"only admin can assign","level":"error","message":"Task created","timestamp":"2025-06-23T06:13:49.750Z"}
+{"error":"invalid blocked id","level":"error","message":"Task created","timestamp":"2025-06-23T06:15:42.292Z"}
+{"error":"invalid blocked id","level":"error","message":"Task created","timestamp":"2025-06-23T06:16:30.957Z"}
+{"action":"CREATE_TASK","level":"info","message":"Audit log created","targetId":"6858f1a7f8a7afdb384e5263","timestamp":"2025-06-23T06:18:15.260Z","userId":"68585431868d34a39efe52f1"}
+{"level":"info","message":"Task created","taskId":"6858f1a7f8a7afdb384e5263","timestamp":"2025-06-23T06:18:15.295Z"}
+{"level":"info","message":"User created successfully","timestamp":"2025-06-23T06:23:16.043Z","userId":"6858f2d16d5b853c88a19222"}
+{"email":"user123@yopmail.com","level":"info","message":"User created successfully","timestamp":"2025-06-23T06:23:16.047Z"}
+{"adminId":"68585431868d34a39efe52f1","level":"info","message":"Admin logged in","timestamp":"2025-06-23T06:25:50.719Z"}
+{"action":"CREATE_TASK","level":"info","message":"Audit log created","targetId":"6858f3a84933e6f7153cc1f6","timestamp":"2025-06-23T06:26:48.824Z","userId":"68585431868d34a39efe52f1"}
+{"level":"info","message":"Task created","taskId":"6858f3a84933e6f7153cc1f6","timestamp":"2025-06-23T06:26:48.855Z"}
+{"error":"Invalid task ID","level":"error","message":"Task updated","timestamp":"2025-06-23T07:00:22.154Z"}
+{"error":"Access denied","level":"error","message":"Task updated","timestamp":"2025-06-23T07:01:46.487Z"}
+{"error":"Access denied","level":"error","message":"Task updated","timestamp":"2025-06-23T07:02:29.876Z"}
+{"error":"Access denied","level":"error","message":"Task updated","timestamp":"2025-06-23T07:02:34.794Z"}
+{"action":"UPDATE_TASK_STATUS","level":"info","message":"Audit log created","targetId":"6858f3a84933e6f7153cc1f6","timestamp":"2025-06-23T07:05:43.253Z","userId":"6858f2d16d5b853c88a19222"}
+{"level":"info","message":"Task updated","taskId":"6858f3a84933e6f7153cc1f6","timestamp":"2025-06-23T07:05:43.257Z"}
+{"error":"Invalid task ID","level":"error","message":"upload attachment","timestamp":"2025-06-23T07:06:06.398Z"}
+{"error":"Invalid task ID","level":"error","message":"upload attachment","timestamp":"2025-06-23T07:06:48.783Z"}
+{"action":"UPLOAD_ATTACHMENT","level":"info","message":"Audit log created","targetId":"6858f3a84933e6f7153cc1f6","timestamp":"2025-06-23T07:09:11.774Z","userId":"6858f2d16d5b853c88a19222"}
+{"level":"info","message":"upload attachment","taskId":"6858f3a84933e6f7153cc1f6","timestamp":"2025-06-23T07:09:11.776Z"}
+{"adminId":"68585431868d34a39efe52f1","level":"info","message":"Admin logged in","timestamp":"2025-06-23T07:14:34.554Z"}
+{"adminId":"68585431868d34a39efe52f1","level":"info","message":"Admin logged in","timestamp":"2025-06-23T07:15:11.433Z"}
+{"createdBy":"68585431868d34a39efe52f1","level":"info","message":"Project created","projectId":"6858ff116ba915a00d3401ae","timestamp":"2025-06-23T07:15:29.194Z"}
+{"createdBy":"68585431868d34a39efe52f1","level":"info","message":"Project created","projectId":"6858ff4c6ba915a00d3401b2","timestamp":"2025-06-23T07:16:28.506Z"}
+{"level":"info","message":"Members assigned to project","projectId":"6858ff4c6ba915a00d3401b2","timestamp":"2025-06-23T07:17:11.516Z"}
+{"level":"info","message":"Tasks assigned to project","projectId":"6858ff4c6ba915a00d3401b2","timestamp":"2025-06-23T07:19:36.224Z"}
+{"action":"ADD_COMMENT","level":"info","message":"Audit log created","targetId":"685901c61c6e4520c0724bae","timestamp":"2025-06-23T07:27:02.745Z","userId":"6858f2d16d5b853c88a19222"}
+{"commentId":"685901c61c6e4520c0724bae","level":"info","message":"Comment created","timestamp":"2025-06-23T07:27:02.747Z","userId":"6858f2d16d5b853c88a19222"}
+{"error":"Task not found","level":"error","message":"Failed to update comment","timestamp":"2025-06-23T07:28:44.442Z"}
+{"error":"Unauthorized access","level":"error","message":"Failed to update comment","timestamp":"2025-06-23T07:30:05.037Z"}
+{"error":"Unauthorized access","level":"error","message":"Failed to update comment","timestamp":"2025-06-23T07:36:58.582Z"}
+{"error":"Unauthorized access","level":"error","message":"Failed to update comment","timestamp":"2025-06-23T07:38:01.371Z"}
+{"error":"Unauthorized access","level":"error","message":"Failed to delete comment","timestamp":"2025-06-23T07:41:35.926Z"}
+{"action":"ADD_COMMENT","level":"info","message":"Audit log created","targetId":"6859055ad4daf944c602694d","timestamp":"2025-06-23T07:42:18.319Z","userId":"6858f2d16d5b853c88a19222"}
+{"commentId":"6859055ad4daf944c602694d","level":"info","message":"Comment created","timestamp":"2025-06-23T07:42:18.322Z","userId":"6858f2d16d5b853c88a19222"}
+{"error":"User already exists","level":"error","message":"User creation failed","timestamp":"2025-06-23T13:40:07.176Z"}
+{"level":"info","message":"User created successfully","timestamp":"2025-06-23T13:40:20.032Z","userId":"68595940c47a9b205c8892f1"}
+{"email":"john.e@example.com","level":"info","message":"User created successfully","timestamp":"2025-06-23T13:40:20.033Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-24T17:14:52.411Z"}
+{"adminId":"68585431868d34a39efe52f1","level":"info","message":"Admin logged in","timestamp":"2025-06-24T17:14:58.360Z"}
+{"action":"CREATE_TASK","level":"info","message":"Audit log created","targetId":"685add662ebf0eff9c205ccd","timestamp":"2025-06-24T17:16:22.860Z","userId":"68585431868d34a39efe52f1"}
+{"level":"info","message":"Task created","taskId":"685add662ebf0eff9c205ccd","timestamp":"2025-06-24T17:16:22.871Z"}
+{"level":"info","message":"User created successfully","timestamp":"2025-06-25T05:51:15.133Z","userId":"685b8e4fe8b462db9b712c0e"}
+{"email":"user123@yopmail.com","level":"info","message":"User created successfully","timestamp":"2025-06-25T05:51:15.136Z"}
+{"adminId":"685b8ecde8b462db9b712c16","level":"info","message":"Admin account created","timestamp":"2025-06-25T05:53:17.939Z"}
+{"adminId":"685b8ecde8b462db9b712c16","level":"info","message":"Admin logged in","timestamp":"2025-06-25T05:53:35.864Z"}
+{"createdBy":"685b8ecde8b462db9b712c16","level":"info","message":"Project created","projectId":"685b8f33e8b462db9b712c1b","timestamp":"2025-06-25T05:54:59.857Z"}
+{"error":"invalid blocked id","level":"error","message":"Task created","timestamp":"2025-06-25T05:56:38.626Z"}
+{"level":"info","message":"User created successfully","timestamp":"2025-06-25T05:57:08.614Z","userId":"685b8fb1e8b462db9b712c27"}
+{"email":"user12@yopmail.com","level":"info","message":"User created successfully","timestamp":"2025-06-25T05:57:08.615Z"}
+{"action":"CREATE_TASK","level":"info","message":"Audit log created","targetId":"685b8ff1e8b462db9b712c2b","timestamp":"2025-06-25T05:58:09.123Z","userId":"685b8ecde8b462db9b712c16"}
+{"level":"info","message":"Task created","taskId":"685b8ff1e8b462db9b712c2b","timestamp":"2025-06-25T05:58:09.141Z"}
+{"error":"Access denied","level":"error","message":"upload attachment","timestamp":"2025-06-25T06:02:21.503Z"}
+{"error":"Access denied","level":"error","message":"upload attachment","timestamp":"2025-06-25T06:03:26.171Z"}
+{"error":"Access denied","level":"error","message":"upload attachment","timestamp":"2025-06-25T06:04:00.880Z"}
+{"action":"UPDATE_TASK_STATUS","level":"info","message":"Audit log created","targetId":"685b8ff1e8b462db9b712c2b","timestamp":"2025-06-25T06:04:12.694Z","userId":"685b8fb1e8b462db9b712c27"}
+{"level":"info","message":"Task updated","taskId":"685b8ff1e8b462db9b712c2b","timestamp":"2025-06-25T06:04:12.694Z"}
+{"error":"Access denied","level":"error","message":"upload attachment","timestamp":"2025-06-25T06:05:09.789Z"}
+{"error":"Access denied","level":"error","message":"upload attachment","timestamp":"2025-06-25T06:07:22.415Z"}
+{"action":"ADD_COMMENT","level":"info","message":"Audit log created","targetId":"685b928ce8b462db9b712c6b","timestamp":"2025-06-25T06:09:16.676Z","userId":"685b8fb1e8b462db9b712c27"}
+{"commentId":"685b928ce8b462db9b712c6b","level":"info","message":"Comment created","timestamp":"2025-06-25T06:09:16.678Z","userId":"685b8fb1e8b462db9b712c27"}
+{"error":"Access denied","level":"error","message":"upload attachment","timestamp":"2025-06-25T06:15:15.967Z"}
+{"error":"Access denied","level":"error","message":"upload attachment","timestamp":"2025-06-25T06:22:11.716Z"}
+{"action":"ADD_COMMENT","level":"info","message":"Audit log created","targetId":"685b961c4f8ea4259fb70447","timestamp":"2025-06-25T06:24:28.032Z","userId":"685b8fb1e8b462db9b712c27"}
+{"commentId":"685b961c4f8ea4259fb70447","level":"info","message":"Comment created","timestamp":"2025-06-25T06:24:28.032Z","userId":"685b8fb1e8b462db9b712c27"}
+{"error":"Access denied","level":"error","message":"upload attachment","timestamp":"2025-06-25T06:25:49.881Z"}
+{"action":"UPLOAD_ATTACHMENT","level":"info","message":"Audit log created","targetId":"685b8ff1e8b462db9b712c2b","timestamp":"2025-06-25T06:31:25.170Z","userId":"685b8fb1e8b462db9b712c27"}
+{"level":"info","message":"upload attachment","taskId":"685b8ff1e8b462db9b712c2b","timestamp":"2025-06-25T06:31:25.172Z"}
+{"adminId":"685b8ecde8b462db9b712c16","level":"info","message":"Admin logged in","timestamp":"2025-06-25T06:32:05.776Z"}
+{"action":"CREATE_TASK","level":"info","message":"Audit log created","targetId":"685b982f0bd306d2bae1798f","timestamp":"2025-06-25T06:33:19.819Z","userId":"685b8ecde8b462db9b712c16"}
+{"level":"info","message":"Task created","taskId":"685b982f0bd306d2bae1798f","timestamp":"2025-06-25T06:33:19.833Z"}
+{"level":"info","message":"User created successfully","timestamp":"2025-06-25T12:05:03.859Z","userId":"685be5ea48abbe27fdfda346"}
+{"email":"john.doe@example.com","level":"info","message":"User created successfully","timestamp":"2025-06-25T12:05:03.863Z"}
+{"error":"User already exists","level":"error","message":"User creation failed","timestamp":"2025-06-25T12:09:45.266Z"}
+{"level":"info","message":"User created successfully","timestamp":"2025-06-25T12:25:01.262Z","userId":"685bea9948abbe27fdfda34a"}
+{"email":"john.doe@ex.com","level":"info","message":"User created successfully","timestamp":"2025-06-25T12:25:01.263Z"}
+{"error":"User already exists","level":"error","message":"User creation failed","timestamp":"2025-06-25T12:35:15.729Z"}
+{"level":"info","message":"User created successfully","timestamp":"2025-06-25T17:30:33.918Z","userId":"685c323602d96865ba91718c"}
+{"email":"je@example.com","level":"info","message":"User created successfully","timestamp":"2025-06-25T17:30:33.921Z"}
+{"error":"User already exists","level":"error","message":"User creation failed","timestamp":"2025-06-25T17:58:59.039Z"}
+{"error":"User already exists","level":"error","message":"User creation failed","timestamp":"2025-06-26T05:11:40.654Z"}
+{"error":"User already exists","level":"error","message":"User creation failed","timestamp":"2025-06-26T05:14:01.443Z"}
+{"error":"User already exists","level":"error","message":"User creation failed","timestamp":"2025-06-26T06:00:53.799Z"}
+{"adminId":"685ce2247798eed91062ae1a","level":"info","message":"Admin account created","timestamp":"2025-06-26T06:01:08.850Z"}
+{"error":"Admin already exists","level":"error","message":"Admin signup failed","timestamp":"2025-06-26T06:01:14.742Z"}
+{"adminId":"685ce2247798eed91062ae1a","level":"info","message":"Admin logged in","timestamp":"2025-06-26T07:47:26.692Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T07:47:34.723Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T07:49:25.479Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T07:49:47.749Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T07:49:50.803Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T07:54:01.825Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T07:54:40.826Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T08:03:49.978Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T08:05:20.836Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T08:09:10.886Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T08:09:27.811Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T08:10:16.441Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T08:11:45.927Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T08:19:38.771Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T08:19:46.467Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T09:41:13.939Z"}
+{"error":"Invalid email or password","level":"error","message":"Admin login failed","timestamp":"2025-06-26T09:49:25.614Z"}
+{"adminId":"685d17e94ffb7416749fcf31","level":"info","message":"Admin logged in","timestamp":"2025-06-26T09:51:01.260Z"}
