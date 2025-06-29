@@ -2,142 +2,152 @@ import { Request, Response, NextFunction } from 'express';
 import { TaskService } from '@services/task.service';
 import { HTTP_STATUS } from '@common/constants/httpStatus';
 import { USER_MESSAGES } from '@common/constants/userMessage';
-import { logMessage } from '@utils/logger';
+import {  logControllerMethod, logControllerError } from '@utils/logger';
 import { LOGGER_MESSAGES } from '@common/constants/logger.constant';
 import { AuthenticatedRequest } from '@middlewares/auth.middleware';
 import { ResponseHelper } from '@common/helpers/response.helper';
-import { CreateTaskDto, UpdateTaskDto } from '@dto/task.dto';
+import {
+  CreateTaskDto,
+  UpdateTaskDto,
+  TaskFilterDto,
+  TaskLabelDto,
+  UploadAttachmentsDto
+} from '@dto/task.dto';
 
 const taskService = new TaskService();
 
 export class TaskController {
   async createTask(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      const userId = req.user?._id?.toString();
-      const role = req.user?.role === 'admin' ? 'admin' : 'user';
-      if (!userId) throw new Error('User ID not found');
+      const { user } = req;
       const body: CreateTaskDto = req.body;
-      const result = await taskService.createTask(body, userId, role);
-      if (!result ) {
-        logMessage('warn', LOGGER_MESSAGES.CREATE, { error: USER_MESSAGES.TASK_CREATE_FAILED });
-        return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json(ResponseHelper.error(HTTP_STATUS.INTERNAL_SERVER_ERROR, USER_MESSAGES.TASK_CREATE_FAILED));
+      logControllerMethod('TaskController', 'createTask', LOGGER_MESSAGES.CREATE, { userId: user._id, role: user.role, ip: req.ip });
+      
+      const result = await taskService.createTask(body, user._id, user.role);
+      
+      if (!result) {
+        throw new Error('Task creation failed');
       }
-      logMessage('info', LOGGER_MESSAGES.CREATE, { taskId: result._id });
-      return res
-        .status(HTTP_STATUS.CREATED)
-        .json(ResponseHelper.created(USER_MESSAGES.TASK_CREATED, result));
+      logControllerMethod('TaskController', 'createTask', LOGGER_MESSAGES.CREATE, { userId: user._id, taskId: result._id, title: result.title });
+      return res.status(HTTP_STATUS.CREATED).json(ResponseHelper.success(USER_MESSAGES.TASK_CREATED, result));
     } catch (err: any) {
-      logMessage('error', LOGGER_MESSAGES.CREATE, { error: err.message });
+      logControllerError('TaskController', 'createTask', err, { userId: req.user?._id, role: req.user?.role, ip: req.ip });
       return next(err);
     }
   }
 
   async getAllTasks(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-      const role = req.user?.role === 'admin' ? 'admin' : 'user';
-      const userId = req.user?._id?.toString();
-      if (!userId) throw new Error(USER_MESSAGES.MISSING_USER_ID);
-      const tasks = await taskService.getAllTasks(role, userId);
-      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.TASK_FETCHED, tasks));
+      const { user } = req;
+      logControllerMethod('TaskController', 'getAllTasks', LOGGER_MESSAGES.TASK_FETCHED, { userId: user._id, role: user.role, ip: req.ip });
+      
+      const result = await taskService.getAllTasks(user.role, user._id, req.query);
+      
+      logControllerMethod('TaskController', 'getAllTasks', LOGGER_MESSAGES.TASK_FETCHED, { userId: user._id, count: result.length });
+      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.TASK_FETCHED, result || []));
     } catch (err: any) {
+      logControllerError('TaskController', 'getAllTasks', err, { userId: req.user?._id, role: req.user?.role, ip: req.ip });
       return next(err);
     }
   }
 
   async getTaskById(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
+      const { user } = req;
       const { taskId } = req.params;
-      const role = req.user?.role === 'admin' ? 'admin' : 'user';
-      const userId = req.user?._id?.toString();
-      if (!userId) throw new Error(USER_MESSAGES.MISSING_USER_ID);
-      const task = await taskService.getTaskById(taskId, role, userId);
-      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.TASK_FETCHED, task));
+      logControllerMethod('TaskController', 'getTaskById', LOGGER_MESSAGES.TASK_FETCHED, { taskId, userId: user._id, role: user.role, ip: req.ip });
+      
+      const result = await taskService.getTaskById(taskId, user.role, user._id);
+      
+      logControllerMethod('TaskController', 'getTaskById', LOGGER_MESSAGES.TASK_FETCHED, { taskId, userId: user._id });
+      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.TASK_FETCHED, result || []));
     } catch (err: any) {
+      logControllerError('TaskController', 'getTaskById', err, { taskId: req.params.taskId, userId: req.user?._id, role: req.user?.role, ip: req.ip });
       return next(err);
     }
   }
 
   async updateTask(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
+      const { user } = req;
       const { taskId } = req.params;
-      const role = req.user?.role === 'admin' ? 'admin' : 'user';
-      const userId = req.user?._id?.toString();
-      if (!userId) throw new Error(USER_MESSAGES.MISSING_USER_ID);
       const body: UpdateTaskDto = req.body;
-      const updated = await taskService.updateTask(taskId, userId, role, body);
-      logMessage('info', LOGGER_MESSAGES.UPDATE, { taskId: taskId });
-      return res
-        .status(HTTP_STATUS.OK)
-        .json(ResponseHelper.success(USER_MESSAGES.TASK_UPDATED, updated));
+      logControllerMethod('TaskController', 'updateTask', LOGGER_MESSAGES.UPDATE, { taskId, userId: user._id, role: user.role, updateData: Object.keys(body), ip: req.ip });
+      
+      const result = await taskService.updateTask(taskId, user._id, user.role, body);
+      
+      logControllerMethod('TaskController', 'updateTask', LOGGER_MESSAGES.UPDATE, { taskId, userId: user._id, updateData: Object.keys(body) });
+      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.TASK_UPDATED, result || []));
     } catch (err: any) {
-      logMessage('error', LOGGER_MESSAGES.UPDATE, { error: err.message });
+      logControllerError('TaskController', 'updateTask', err, { taskId: req.params.taskId, userId: req.user?._id, role: req.user?.role, updateData: Object.keys(req.body), ip: req.ip });
       return next(err);
     }
   }
 
   async deleteTask(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
+      const { user } = req;
       const { taskId } = req.params;
-      const role = req.user?.role === 'admin' ? 'admin' : 'user';
-      const userId = req.user?._id?.toString();
-      if (!userId) throw new Error(USER_MESSAGES.MISSING_USER_ID);
-      const result = await taskService.deleteTask(taskId, role, userId);
-      logMessage('info', LOGGER_MESSAGES.DELETE, { taskId });
-      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.TASK_DELETED, result));
+      logControllerMethod('TaskController', 'deleteTask', LOGGER_MESSAGES.DELETE, { taskId, userId: user._id, role: user.role, ip: req.ip });
+      
+      const result = await taskService.deleteTask(taskId, user.role, user._id);
+      
+      logControllerMethod('TaskController', 'deleteTask', LOGGER_MESSAGES.DELETE, { taskId, userId: user._id });
+      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.TASK_DELETED, result || []));
     } catch (err: any) {
-      logMessage('error', LOGGER_MESSAGES.DELETE, { error: err.message });
+      logControllerError('TaskController', 'deleteTask', err, { taskId: req.params.taskId, userId: req.user?._id, role: req.user?.role, ip: req.ip });
       return next(err);
     }
   }
 
   async uploadAttachments(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
+      const { user } = req;
       const { taskId } = req.params;
-      const role = req.user?.role === 'admin' ? 'admin' : 'user';
-      const userId = req.user?._id?.toString();
-      if (!userId) throw new Error(USER_MESSAGES.MISSING_USER_ID);
-      const files = (req.files as Express.Multer.File[])?.map((file) => file.path) || [];
-      if (!files.length) {
-        return res
-          .status(HTTP_STATUS.BAD_REQUEST)
-          .json(ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, USER_MESSAGES.MISSING_FILE));
-      }
-      const result = await taskService.uploadAttachments(taskId, files, role, userId);
-      logMessage('info', LOGGER_MESSAGES.UPLOAD_ATTACHMENT, { taskId });
-      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.ATTACHMENT_UPLOADED, result));
+      const files = (req.files as Express.Multer.File[])?.map(f => (f as any).filename) || [];
+      const body: UploadAttachmentsDto = { taskId, files };
+      logControllerMethod('TaskController', 'uploadAttachments', LOGGER_MESSAGES.UPLOAD_ATTACHMENT, { taskId, userId: user._id, role: user.role, filesCount: files?.length, ip: req.ip });
+      
+      const result = await taskService.uploadAttachments(body.taskId, body.files, user.role, user._id);
+      
+      logControllerMethod('TaskController', 'uploadAttachments', LOGGER_MESSAGES.UPLOAD_ATTACHMENT, { taskId, userId: user._id, filesCount: files?.length });
+      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.ATTACHMENT_UPLOADED, result || []));
     } catch (err: any) {
-      logMessage('error', LOGGER_MESSAGES.UPLOAD_ATTACHMENT, { error: err.message });
+      logControllerError('TaskController', 'uploadAttachments', err, { taskId: req.params.taskId, userId: req.user?._id, role: req.user?.role, filesCount: req.files?.length, ip: req.ip });
       return next(err);
     }
   }
 
   async filterTasksByMonthYear(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
+      const { user } = req;
       const { month, year } = req.query;
-      const role = req.user?.role === 'admin' ? 'admin' : 'user';
-      const userId = req.user?._id?.toString();
-      if (!userId) throw new Error(USER_MESSAGES.MISSING_USER_ID);
-      const result = await taskService.filterTasksByMonthYear(
-        userId,
-        role,
-        Number(month),
-        Number(year)
-      );
-      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.TASK_FILTERED, result));
+      const filter: TaskFilterDto = { month: Number(month), year: Number(year) };
+      logControllerMethod('TaskController', 'filterTasksByMonthYear', LOGGER_MESSAGES.TASK_FETCHED, { userId: user._id, role: user.role, month, year, ip: req.ip });
+      
+      const result = await taskService.filterTasksByMonthYear(user._id, user.role, filter.month, filter.year);
+      
+      logControllerMethod('TaskController', 'filterTasksByMonthYear', LOGGER_MESSAGES.TASK_FETCHED, { userId: user._id, month, year, count: result.length });
+      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.TASK_FETCHED, result || []));
     } catch (err: any) {
+      logControllerError('TaskController', 'filterTasksByMonthYear', err, { userId: req.user?._id, role: req.user?.role, month: req.query?.month, year: req.query?.year, ip: req.ip });
       return next(err);
     }
   }
 
   async getTasksByLabel(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
+      const { user } = req;
       const { label } = req.params;
-      const role = req.user?.role === 'admin' ? 'admin' : 'user';
-      const userId = req.user?._id?.toString();
-      if (!userId) throw new Error(USER_MESSAGES.MISSING_USER_ID);
-      const result = await taskService.getTasksByLabel(label, userId, role);
-      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.TASK_LEVEL_FETCHED, result));
+      const labelDto: TaskLabelDto = { label };
+      logControllerMethod('TaskController', 'getTasksByLabel', LOGGER_MESSAGES.TASK_FETCHED, { label, userId: user._id, role: user.role, ip: req.ip });
+      
+      const result = await taskService.getTasksByLabel(labelDto.label, user._id, user.role);
+      
+      logControllerMethod('TaskController', 'getTasksByLabel', LOGGER_MESSAGES.TASK_FETCHED, { label, userId: user._id, count: result.length });
+      return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.TASK_FETCHED, result || []));
     } catch (err: any) {
+      logControllerError('TaskController', 'getTasksByLabel', err, { label: req.params.label, userId: req.user?._id, role: req.user?.role, ip: req.ip });
       return next(err);
     }
   }

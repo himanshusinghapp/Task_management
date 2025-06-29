@@ -3,6 +3,7 @@ import { ProjectController } from '@controllers/project.controller';
 import { Auth } from '@middlewares/auth.middleware';
 import { Validate } from '@middlewares/validate';
 import Joi from 'joi';
+import { USER_MESSAGES } from '@common/constants/userMessage';
 
 const router = Router();
 const controller = new ProjectController();
@@ -10,7 +11,7 @@ const controller = new ProjectController();
 const objectId = (value: string, helpers: any) => {
   const mongoose = require('mongoose');
   if (!mongoose.Types.ObjectId.isValid(value)) {
-    return helpers.error('any.invalid', { message: 'Must be a valid ObjectId' });
+    return helpers.error('any.invalid', { message: USER_MESSAGES.INVALID_OBJECT_ID });
   }
   return value;
 };
@@ -21,14 +22,14 @@ router.post(
   Validate.middleware(
     Joi.object({
       name: Joi.string().trim().min(3).max(100).required().messages({
-        'string.base': 'Project name must be a string',
-        'string.empty': 'Project name is required',
-        'string.min': 'Project name must be at least 3 characters',
-        'string.max': 'Project name must be at most 100 characters',
-        'any.required': 'Project name is required',
+        'string.base': USER_MESSAGES.PROJECT_NAME_EXISTS,
+        'string.empty': USER_MESSAGES.PROJECT_NAME_EXISTS,
+        'string.min': USER_MESSAGES.PROJECT_NAME_EXISTS,
+        'string.max': USER_MESSAGES.PROJECT_NAME_EXISTS,
+        'any.required': USER_MESSAGES.PROJECT_NAME_EXISTS,
       }),
       description: Joi.string().trim().max(1000).optional().messages({
-        'string.max': 'Description must be at most 1000 characters',
+        'string.max': USER_MESSAGES.PROJECT_UPDATED,
       }),
     })
   ),
@@ -41,12 +42,12 @@ router.patch(
   Validate.middleware(
     Joi.object({
       name: Joi.string().trim().min(3).max(100).optional().messages({
-        'string.base': 'Project name must be a string',
-        'string.min': 'Project name must be at least 3 characters',
-        'string.max': 'Project name must be at most 100 characters',
+        'string.base': USER_MESSAGES.PROJECT_NAME_EXISTS,
+        'string.min': USER_MESSAGES.PROJECT_NAME_EXISTS,
+        'string.max': USER_MESSAGES.PROJECT_NAME_EXISTS,
       }),
       description: Joi.string().trim().max(1000).optional().messages({
-        'string.max': 'Description must be at most 1000 characters',
+        'string.max': USER_MESSAGES.PROJECT_UPDATED,
       }),
     })
   ),
@@ -61,11 +62,11 @@ router.post(
   Validate.middleware(
     Joi.object({
       memberIds: Joi.array().items(Joi.string().custom(objectId).messages({
-        'any.invalid': 'Each memberId must be a valid ObjectId',
+        'any.invalid': USER_MESSAGES.INVALID_OBJECT_ID,
       })).min(1).required().messages({
-        'array.base': 'memberIds must be an array',
-        'array.min': 'At least one memberId is required',
-        'any.required': 'memberIds is required',
+        'array.base': USER_MESSAGES.MEMBERS_ASSIGNED,
+        'array.min': USER_MESSAGES.MEMBERS_ASSIGNED,
+        'any.required': USER_MESSAGES.MEMBERS_ASSIGNED,
       }),
     })
   ),
@@ -78,11 +79,11 @@ router.patch(
   Validate.middleware(
     Joi.object({
       memberIds: Joi.array().items(Joi.string().custom(objectId).messages({
-        'any.invalid': 'Each memberId must be a valid ObjectId',
+        'any.invalid': USER_MESSAGES.INVALID_OBJECT_ID,
       })).min(1).required().messages({
-        'array.base': 'memberIds must be an array',
-        'array.min': 'At least one memberId is required',
-        'any.required': 'memberIds is required',
+        'array.base': USER_MESSAGES.MEMEBERS_REMOVED,
+        'array.min': USER_MESSAGES.MEMEBERS_REMOVED,
+        'any.required': USER_MESSAGES.MEMEBERS_REMOVED,
       }),
     })
   ),
@@ -95,11 +96,11 @@ router.post(
   Validate.middleware(
     Joi.object({
       taskIds: Joi.array().items(Joi.string().custom(objectId).messages({
-        'any.invalid': 'Each taskId must be a valid ObjectId',
+        'any.invalid': USER_MESSAGES.INVALID_OBJECT_ID,
       })).min(1).required().messages({
-        'array.base': 'taskIds must be an array',
-        'array.min': 'At least one taskId is required',
-        'any.required': 'taskIds is required',
+        'array.base': USER_MESSAGES.TASKS_ASSIGNED,
+        'array.min': USER_MESSAGES.TASKS_ASSIGNED,
+        'any.required': USER_MESSAGES.TASKS_ASSIGNED,
       }),
     })
   ),
@@ -112,11 +113,11 @@ router.patch(
   Validate.middleware(
     Joi.object({
       taskIds: Joi.array().items(Joi.string().custom(objectId).messages({
-        'any.invalid': 'Each taskId must be a valid ObjectId',
+        'any.invalid': USER_MESSAGES.INVALID_OBJECT_ID,
       })).min(1).required().messages({
-        'array.base': 'taskIds must be an array',
-        'array.min': 'At least one taskId is required',
-        'any.required': 'taskIds is required',
+        'array.base': USER_MESSAGES.TASK_REMOVED,
+        'array.min': USER_MESSAGES.TASK_REMOVED,
+        'any.required': USER_MESSAGES.TASK_REMOVED,
       }),
     })
   ),

@@ -6,208 +6,328 @@ import { sendEmail } from '@utils/email';
 import { generateToken } from '@utils/jwt.utils';
 import { USER_MESSAGES } from '@common/constants/userMessage';
 import { OTP_EXPIRY, OTP_ATTEMPT_THRESHOLD, OTP_ATTEMPT_BLOCK_TIME } from '@common/constants/user.constant';
-import { logMessage } from '@utils/logger';
+import { logServiceMethod, logServiceError } from '@utils/logger';
 import { LOGGER_MESSAGES } from '@common/constants/logger.constant';
 import { userQuery } from '@utils/query';
 import { Exceptions } from '@common/exception/customException';
 import { User } from '@models/user.model';
 
 export class UserService {
-  // async signup(name: string, email: string, password: string) {
-  //   const existing = await userQuery.findUserByEmail(email);
-  //   if (existing) throw Exceptions.BadRequest(USER_MESSAGES.USER_EXISTS);
-
-  //   const hashed = await hashPassword(password);
-  //   const user = await User.create({ name, email, password: hashed });
-
-  //   const otp = generateOtp();
-  //   await redis.set(`otp:${user._id}`, otp, 'EX', OTP_EXPIRY);
-  //   await sendEmail({ to: email, subject: 'OTP Verification', text: `Your OTP is: ${otp}` });
-
-  //   logMessage('info', LOGGER_MESSAGES.USER_CREATED, { userId: user._id });
-  //   return { userId: user._id };
-  // }
-
-  // async resendOtp(userId: string) {
-  //   const user = await this.checkUser(userId);
-  //   if (user.isVerified) throw Exceptions.BadRequest(USER_MESSAGES.EMAIL_ALREADY_VERIFIED);
-
-  //   const attemptsKey = `otp:attempts:${userId}`;
-  //   const sentCount = Number(await redis.get(attemptsKey)) || 0;
-  //   if (sentCount >= OTP_ATTEMPT_THRESHOLD) {
-  //     logMessage('warn', LOGGER_MESSAGES.OTP_REQUEST_LIMIT, { userId });
-  //     throw Exceptions.TooManyRequests(USER_MESSAGES.OTP_LIMIT_REACHED);
-  //   }
-
-  //   const otp = generateOtp();
-  //   await Promise.all([
-  //     redis.set(`otp:${userId}`, otp, 'EX', OTP_EXPIRY),
-  //     redis.set(attemptsKey, String(sentCount + 1), 'EX', OTP_ATTEMPT_BLOCK_TIME),
-  //     sendEmail({ to: user.email, subject: 'OTP Verification', text: `Your OTP is: ${otp}` })
-  //   ]);
-
-  //   return { userId };
-  // }
 
   async requestEmailVerification(email: string) {
-  const existingUser = await userQuery.findUserByEmail(email);
-  if (existingUser) throw Exceptions.BadRequest(USER_MESSAGES.USER_EXISTS);
+    try {
+      logServiceMethod('UserService', 'requestEmailVerification', LOGGER_MESSAGES.EMAIL_SENT, { email });
+      
+      const existingUser = await userQuery.findUserByEmail(email);
+      if (existingUser) {
+        logServiceMethod('UserService', 'requestEmailVerification', LOGGER_MESSAGES.USER_CREATION_FAILED, { email });
+        throw Exceptions.BadRequest(USER_MESSAGES.USER_EXISTS);
+      }
 
-  const otpKey = `otp:${email}`;
-  const attemptKey = `otp:attempts:${email}`;
-  const sentCount = Number(await redis.get(attemptKey)) || 0;
+      const otpKey = `otp:${email}`;
+      const attemptKey = `otp:attempts:${email}`;
+      const sentCount = Number(await redis.get(attemptKey)) || 0;
 
-  if (sentCount >= OTP_ATTEMPT_THRESHOLD)
-    throw Exceptions.TooManyRequests(USER_MESSAGES.OTP_LIMIT_REACHED);
+      if (sentCount >= OTP_ATTEMPT_THRESHOLD) {
+        logServiceMethod('UserService', 'requestEmailVerification', LOGGER_MESSAGES.OTP_REQUEST_LIMIT, { email, attempts: sentCount });
+        throw Exceptions.TooManyRequests(USER_MESSAGES.OTP_LIMIT_REACHED);
+      }
 
-  const otp = generateOtp();
-  await Promise.all([
-    redis.set(otpKey, otp, 'EX', OTP_EXPIRY),
-    redis.set(attemptKey, `${sentCount + 1}`, 'EX', OTP_ATTEMPT_BLOCK_TIME),
-    sendEmail({ to: email, subject: 'Email Verification', text: `Your OTP is: ${otp}` }),
-  ]);
+      const otp = generateOtp();
+      await Promise.all([
+        redis.set(otpKey, otp, 'EX', OTP_EXPIRY),
+        redis.set(attemptKey, `${sentCount + 1}`, 'EX', OTP_ATTEMPT_BLOCK_TIME),
+        sendEmail({ to: email, subject: 'Email Verification', text: `Your OTP is: ${otp}` }),
+      ]);
 
-  return { message: 'OTP sent to your email.' };
-}
-async verifyEmailOtp(email: string, otp: string) {
-  const storedOtp = await redis.get(`otp:${email}`);
-  if (!storedOtp || storedOtp !== otp)
-    throw Exceptions.BadRequest(USER_MESSAGES.INVALID_OR_EXPIRED_OTP);
+      logServiceMethod('UserService', 'requestEmailVerification', LOGGER_MESSAGES.EMAIL_SENT, { email, attempts: sentCount + 1 });
+      return { message: USER_MESSAGES.OTP_SENT};
+    } catch (error) {
+      logServiceError('UserService', 'requestEmailVerification', error, { email });
+      throw error;
+    }
+  }
 
-  await redis.del(`otp:${email}`);
-  await redis.set(`verified:${email}`, 'true', 'EX', 900); // valid for 15 minutes
+  async verifyEmailOtp(email: string, otp: string) {
+    try {
+      logServiceMethod('UserService', 'verifyEmailOtp', LOGGER_MESSAGES.EMAIL_SENT, { email });
+      
+      const storedOtp = await redis.get(`otp:${email}`);
+      if (!storedOtp ) {
+        logServiceMethod('UserService', 'verifyEmailOtp', LOGGER_MESSAGES.OTP_REQUEST_LIMIT, { email });
+        throw Exceptions.BadRequest(USER_MESSAGES.INVALID_OR_EXPIRED_OTP);
+      }
+      if(storedOtp !== otp){
+        
+      }
+      
 
-  return { message: 'Email verified. You can now sign up.' };
-}
-async completeSignup(name: string, email: string, password: string) {
-  const isVerified = await redis.get(`verified:${email}`);
-  if (!isVerified) throw Exceptions.BadRequest(USER_MESSAGES.EMAIL_NOT_VERIFIED);
+      await redis.del(`otp:${email}`);
+      await redis.set(`verified:${email}`, 'true', 'EX', OTP_ATTEMPT_BLOCK_TIME); 
 
-  const existingUser = await userQuery.findUserByEmail(email);
-  if (existingUser) throw Exceptions.BadRequest(USER_MESSAGES.USER_EXISTS);
+      logServiceMethod('UserService', 'verifyEmailOtp', LOGGER_MESSAGES.EMAIL_SENT, { email });
+      return { message: USER_MESSAGES.EMAIL_VERIFIED };
+    } catch (error) {
+      logServiceError('UserService', 'verifyEmailOtp', error, { email });
+      throw error;
+    }
+  }
 
-  const hashedPassword = await hashPassword(password);
-  const user = await User.create({ name, email, password: hashedPassword, isVerified: true });
+  async completeSignup(name: string, email: string, password: string) {
+    try {
+      logServiceMethod('UserService', 'completeSignup', LOGGER_MESSAGES.USER_CREATED, { email });
+      
+      const isVerified = await redis.get(`verified:${email}`);
+      if (!isVerified) {
+        logServiceMethod('UserService', 'completeSignup', LOGGER_MESSAGES.USER_CREATION_FAILED, { email });
+        throw Exceptions.BadRequest(USER_MESSAGES.EMAIL_NOT_VERIFIED);
+      }
 
-  await redis.del(`verified:${email}`);
-  return { userId: user._id };
-}
+      const existingUser = await userQuery.findUserByEmail(email);
+      if (existingUser) {
+        logServiceMethod('UserService', 'completeSignup', LOGGER_MESSAGES.USER_CREATION_FAILED, { email });
+        throw Exceptions.BadRequest(USER_MESSAGES.USER_EXISTS);
+      }
 
+      const hashedPassword = await hashPassword(password);
+      const user = await User.create({ name, email, password: hashedPassword, isVerified: true });
+
+      await redis.del(`verified:${email}`);
+      
+      logServiceMethod('UserService', 'completeSignup', LOGGER_MESSAGES.USER_CREATED, { email, userId: user._id });
+      return { userId: user._id };
+    } catch (error) {
+      logServiceError('UserService', 'completeSignup', error, { email });
+      throw error;
+    }
+  }
 
   async verifyEmail(userId: string, otp: string) {
-    const storedOtp = await redis.get(`otp:${userId}`);
-    if (!storedOtp || storedOtp !== otp) throw Exceptions.BadRequest(USER_MESSAGES.OTP_EXPIRED);
+    try {
+      logServiceMethod('UserService', 'verifyEmail', LOGGER_MESSAGES.EMAIL_SENT, { userId });
+      
+      const storedOtp = await redis.get(`otp:${userId}`);
+      if (!storedOtp) {
+        logServiceMethod('UserService', 'verifyEmail', LOGGER_MESSAGES.OTP_REQUEST_LIMIT, { userId });
+        throw Exceptions.BadRequest(USER_MESSAGES.OTP_EXPIRED);
+      }
+      if (storedOtp !== otp) {
+        logServiceMethod('UserService', 'verifyEmail', LOGGER_MESSAGES.OTP_REQUEST_LIMIT, { userId });
+        throw Exceptions.BadRequest(USER_MESSAGES.INVALID_OTP_);
+      }
 
-    await userQuery.updateUserById(userId, { isVerified: true });
-    await redis.del(`otp:${userId}`);
-    return { userId };
+      await userQuery.updateUserById(userId, { isVerified: true });
+      await redis.del(`otp:${userId}`);
+      
+      logServiceMethod('UserService', 'verifyEmail', LOGGER_MESSAGES.EMAIL_SENT, { userId });
+      return { userId };
+    } catch (error) {
+      logServiceError('UserService', 'verifyEmail', error, { userId });
+      throw error;
+    }
   }
 
   async login(email: string, password: string) {
-    const user = await userQuery.findUserByEmail(email);
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      throw Exceptions.Unauthorized(USER_MESSAGES.INVALID_CREDENTIALS);
+    try {
+      logServiceMethod('UserService', 'login', LOGGER_MESSAGES.LOGIN_ATTEMPT, { email });
+      
+      const user = await userQuery.findUserByEmail(email);
+      if (!user || !(await bcrypt.compare(password, user.password))) {
+        logServiceMethod('UserService', 'login', LOGGER_MESSAGES.LOGIN_ATTEMPT, { email });
+        throw Exceptions.Unauthorized(USER_MESSAGES.INVALID_CREDENTIALS);
+      }
+      
+      if (!user.isVerified) {
+        logServiceMethod('UserService', 'login', LOGGER_MESSAGES.USER_CREATION_FAILED, { email, userId: user._id });
+        throw Exceptions.Forbidden(USER_MESSAGES.EMAIL_NOT_VERIFIED);
+      }
+      
+      await userQuery.updateUserById(user._id.toString(), { isActive: true });
+      const accessToken = generateToken(user._id.toString(), 'user');
+      
+      logServiceMethod('UserService', 'login', LOGGER_MESSAGES.LOGIN_ATTEMPT, { email, userId: user._id });
+      return {
+        accessToken,
+        user: { id: user._id, name: user.name, email: user.email },
+      };
+    } catch (error) {
+      logServiceError('UserService', 'login', error, { email });
+      throw error;
     }
-    if (!user.isVerified) throw Exceptions.Forbidden(USER_MESSAGES.EMAIL_NOT_VERIFIED);
-    await userQuery.updateUserById(user._id.toString(), { isActive: true });
-    const accessToken = generateToken(user._id.toString(), 'user');
-    return {
-      accessToken,
-      user: { id: user._id, name: user.name, email: user.email },
-    };
   }
 
   async forgotPassword(email: string) {
-    const user = await userQuery.findUserByEmail(email);
-    if (!user) throw Exceptions.NotFound(USER_MESSAGES.USER_NOT_FOUND);
-    if (!user.isVerified) throw Exceptions.Forbidden(USER_MESSAGES.EMAIL_NOT_VERIFIED);
+    try {
+      logServiceMethod('UserService', 'forgotPassword', LOGGER_MESSAGES.EMAIL_SENT, { email });
+      
+      const user = await userQuery.findUserByEmail(email);
+      if (!user) {
+        logServiceMethod('UserService', 'forgotPassword', LOGGER_MESSAGES.USER_CREATION_FAILED, { email });
+        throw Exceptions.NotFound(USER_MESSAGES.USER_NOT_FOUND);
+      }
+      
+      if (!user.isVerified) {
+        logServiceMethod('UserService', 'forgotPassword', LOGGER_MESSAGES.USER_CREATION_FAILED, { email, userId: user._id });
+        throw Exceptions.Forbidden(USER_MESSAGES.EMAIL_NOT_VERIFIED);
+      }
 
-    const attemptsKey = `otp:reset:attempts:${user._id}`;
-    const sentCount = Number(await redis.get(attemptsKey)) || 0;
-    if (sentCount >= OTP_ATTEMPT_THRESHOLD)
-      throw Exceptions.TooManyRequests(USER_MESSAGES.OTP_LIMIT_REACHED);
+      const attemptsKey = `otp:reset:attempts:${user._id}`;
+      const sentCount = Number(await redis.get(attemptsKey)) || 0;
+      if (sentCount >= OTP_ATTEMPT_THRESHOLD) {
+        logServiceMethod('UserService', 'forgotPassword', LOGGER_MESSAGES.OTP_REQUEST_LIMIT, { userId: user._id, attempts: sentCount });
+        throw Exceptions.TooManyRequests(USER_MESSAGES.OTP_LIMIT_REACHED);
+      }
 
-    const otp = generateOtp();
-    await Promise.all([
-      redis.set(`otp:reset:${user._id}`, otp, 'EX', OTP_EXPIRY),
-      redis.set(attemptsKey, String(sentCount + 1), 'EX', OTP_ATTEMPT_BLOCK_TIME),
-      sendEmail({ to: email, subject: 'Password Reset OTP', text: `Your OTP is: ${otp}` }),
-    ]);
+      const otp = generateOtp();
+      await Promise.all([
+        redis.set(`otp:reset:${user._id}`, otp, 'EX', OTP_EXPIRY),
+        redis.set(attemptsKey, String(sentCount + 1), 'EX', OTP_ATTEMPT_BLOCK_TIME),
+        sendEmail({ to: email, subject: 'Password Reset OTP', text: `Your OTP is: ${otp}` }),
+      ]);
 
-    return { userId: user._id };
+      logServiceMethod('UserService', 'forgotPassword', LOGGER_MESSAGES.EMAIL_SENT, { userId: user._id, attempts: sentCount + 1 });
+      return { userId: user._id };
+    } catch (error) {
+      logServiceError('UserService', 'forgotPassword', error, { email });
+      throw error;
+    }
   }
 
   async resetPassword(userId: string, otp: string, newPassword: string) {
-    const storedOtp = await redis.get(`otp:reset:${userId}`);
-    const attemptsKey = `otp:reset:invalid:${userId}`;
-    let attempts = Number(await redis.get(attemptsKey)) || 0;
+    try {
+      logServiceMethod('UserService', 'resetPassword', LOGGER_MESSAGES.PASSWORD_UPDATED, { userId });
+      
+      const storedOtp = await redis.get(`otp:reset:${userId}`);
+      const attemptsKey = `otp:reset:invalid:${userId}`;
+      let attempts = Number(await redis.get(attemptsKey)) || 0;
 
-    if (!storedOtp) throw Exceptions.BadRequest(USER_MESSAGES.OTP_EXPIRED);
-
-    if (storedOtp !== otp) {
-      attempts += 1;
-      await redis.set(attemptsKey, String(attempts), 'EX', OTP_EXPIRY);
-      if (attempts >= 5) {
-        await redis.del(`otp:reset:${userId}`);
-        throw Exceptions.TooManyRequests(USER_MESSAGES.TOO_MANY_ATTEMPTS);
+      if (!storedOtp) {
+        logServiceMethod('UserService', 'resetPassword', LOGGER_MESSAGES.OTP_REQUEST_LIMIT, { userId });
+        throw Exceptions.BadRequest(USER_MESSAGES.OTP_EXPIRED);
       }
-      throw Exceptions.BadRequest(USER_MESSAGES.INVALID_OTP(attempts));
+
+      if (storedOtp !== otp) {
+        attempts += 1;
+        await redis.set(attemptsKey, String(attempts), 'EX', OTP_EXPIRY);
+        if (attempts >= 5) {
+          await redis.del(`otp:reset:${userId}`);
+          logServiceMethod('UserService', 'resetPassword', LOGGER_MESSAGES.OTP_REQUEST_LIMIT, { userId, attempts });
+          throw Exceptions.TooManyRequests(USER_MESSAGES.TOO_MANY_ATTEMPTS);
+        }
+        logServiceMethod('UserService', 'resetPassword', LOGGER_MESSAGES.OTP_REQUEST_LIMIT, { userId, attempts });
+        throw Exceptions.BadRequest(USER_MESSAGES.INVALID_OTP(attempts));
+      }
+
+      const hashed = await hashPassword(newPassword);
+      await userQuery.updateUserById(userId, { password: hashed });
+
+      await Promise.all([
+        redis.del(`otp:reset:${userId}`),
+        redis.del(attemptsKey),
+        redis.del(`otp:reset:attempts:${userId}`),
+      ]);
+
+      logServiceMethod('UserService', 'resetPassword', LOGGER_MESSAGES.PASSWORD_UPDATED, { userId });
+      return { userId };
+    } catch (error) {
+      logServiceError('UserService', 'resetPassword', error, { userId });
+      throw error;
     }
-
-    const hashed = await hashPassword(newPassword);
-    await userQuery.updateUserById(userId, { password: hashed });
-
-    await Promise.all([
-      redis.del(`otp:reset:${userId}`),
-      redis.del(attemptsKey),
-      redis.del(`otp:reset:attempts:${userId}`),
-    ]);
-
-    return { userId };
   }
 
   async changePassword(userId: string, oldPass: string, newPass: string) {
-    const user = await this.checkUser(userId);
+    try {
+      logServiceMethod('UserService', 'changePassword', LOGGER_MESSAGES.PASSWORD_UPDATED, { userId });
+      
+      const user = await this.checkUser(userId);
 
-    const isMatch = await bcrypt.compare(oldPass, user.password);
-    if (!isMatch) throw Exceptions.BadRequest('Old password is incorrect');
+      const isMatch = await bcrypt.compare(oldPass, user.password);
+      if (!isMatch) {
+        logServiceMethod('UserService', 'changePassword', LOGGER_MESSAGES.PASSWORD_UPDATED, { userId });
+        throw Exceptions.BadRequest('Old password is incorrect');
+      }
 
-    const hashed = await hashPassword(newPass);
-    await userQuery.updateUserById(userId, { password: hashed });
+      const hashed = await hashPassword(newPass);
+      await userQuery.updateUserById(userId, { password: hashed });
 
-    return { userId };
+      logServiceMethod('UserService', 'changePassword', LOGGER_MESSAGES.PASSWORD_UPDATED, { userId });
+      return { userId };
+    } catch (error) {
+      logServiceError('UserService', 'changePassword', error, { userId });
+      throw error;
+    }
   }
 
   async getProfile(userId: string) {
-    const user = await User.findById(userId).select('-password').lean();
-    if (!user) throw Exceptions.NotFound(USER_MESSAGES.USER_NOT_FOUND);
-    return { id: user._id, name: user.name, email: user.email, isActive: user.isActive, isVerified: user.isVerified };
+    try {
+      logServiceMethod('UserService', 'getProfile', LOGGER_MESSAGES.USER_FETCHED, { userId });
+      
+      const user = await User.findById(userId).select('-password').lean();
+      if (!user) {
+        logServiceMethod('UserService', 'getProfile', LOGGER_MESSAGES.USER_CREATION_FAILED, { userId });
+        throw Exceptions.NotFound(USER_MESSAGES.USER_NOT_FOUND);
+      }
+      
+      logServiceMethod('UserService', 'getProfile', LOGGER_MESSAGES.USER_FETCHED, { userId });
+      return { id: user._id, name: user.name, email: user.email, isActive: user.isActive, isVerified: user.isVerified };
+    } catch (error) {
+      logServiceError('UserService', 'getProfile', error, { userId });
+      throw error;
+    }
   }
 
   async editProfile(userId: string, data: { name?: string; email?: string }) {
-    const user = await this.checkUser(userId);
-    if (data.email && data.email !== user.email) {
-      const emailExists = await userQuery.findUserByEmail(data.email);
-      if (emailExists) throw Exceptions.BadRequest(USER_MESSAGES.EMAIL_ALREADY_IN_USE);
+    try {
+      logServiceMethod('UserService', 'editProfile', LOGGER_MESSAGES.USER_FETCHED, { userId, data });
+      
+      const user = await this.checkUser(userId);
+      if (data.email && data.email !== user.email) {
+        const emailExists = await userQuery.findUserByEmail(data.email);
+        if (emailExists) {
+          logServiceMethod('UserService', 'editProfile', LOGGER_MESSAGES.USER_CREATION_FAILED, { userId, newEmail: data.email });
+          throw Exceptions.BadRequest(USER_MESSAGES.EMAIL_ALREADY_IN_USE);
+        }
+      }
+
+      await userQuery.updateUserById(userId, {
+        ...(data.name && { name: data.name }),
+        ...(data.email && { email: data.email }),
+      });
+
+      logServiceMethod('UserService', 'editProfile', LOGGER_MESSAGES.USER_FETCHED, { userId, updatedFields: Object.keys(data) });
+      return { userId };
+    } catch (error) {
+      logServiceError('UserService', 'editProfile', error, { userId, data });
+      throw error;
     }
-
-    await userQuery.updateUserById(userId, {
-      ...(data.name && { name: data.name }),
-      ...(data.email && { email: data.email }),
-    });
-
-    return { userId };
   }
 
   async logout(userId: string) {
-    const user = await this.checkUser(userId);
-    await userQuery.updateUserById(userId, { isActive: false });
-    return { userId };
+    try {
+      logServiceMethod('UserService', 'logout', LOGGER_MESSAGES.ADMIN_LOGOUT, { userId });
+      
+      const user = await this.checkUser(userId);
+      await userQuery.updateUserById(userId, { isActive: false });
+      
+      logServiceMethod('UserService', 'logout', LOGGER_MESSAGES.ADMIN_LOGOUT, { userId });
+      return { userId };
+    } catch (error) {
+      logServiceError('UserService', 'logout', error, { userId });
+      throw error;
+    }
   }
 
   async checkUser(userId:string){
-    const user = await userQuery.findUserById(userId);
-    if (!user) throw Exceptions.NotFound(USER_MESSAGES.USER_NOT_FOUND);
-    return user;
+    try {
+      const user = await userQuery.findUserById(userId);
+      if (!user) {
+        logServiceMethod('UserService', 'checkUser', LOGGER_MESSAGES.USER_CREATION_FAILED, { userId });
+        throw Exceptions.NotFound(USER_MESSAGES.USER_NOT_FOUND);
+      }
+      return user;
+    } catch (error) {
+      logServiceError('UserService', 'checkUser', error, { userId });
+      throw error;
+    }
   }
 }

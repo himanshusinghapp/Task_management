@@ -54,6 +54,8 @@
  *   post:
  *     summary: Login admin
  *     tags: [Admin]
+ *     security:
+ *       - basicAuth: []
  *     requestBody:
  *       required: true
  *       content:

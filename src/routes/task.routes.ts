@@ -4,6 +4,8 @@ import { Auth } from '@middlewares/auth.middleware';
 import { upload } from '@utils/multer';
 import { Validate } from '@middlewares/validate';
 import Joi from 'joi';
+import { USER_MESSAGES } from '@common/constants/userMessage';
+import { TASK_STATUS, TASK_PRIORITY } from '@common/constants/task.constants';
 
 const router = Router();
 const controller = new TaskController();
@@ -11,7 +13,7 @@ const controller = new TaskController();
 const objectId = (value: string, helpers: any) => {
   const mongoose = require('mongoose');
   if (!mongoose.Types.ObjectId.isValid(value)) {
-    return helpers.error('any.invalid', { message: 'Must be a valid ObjectId' });
+    return helpers.error('any.invalid', { message: USER_MESSAGES.INVALID_OBJECT_ID });
   }
   return value;
 };
@@ -24,7 +26,11 @@ router.post(
       title: Joi.string().trim().min(3).max(100).required(),
       description: Joi.string().trim().allow('').max(1000).default(''),
       dueDate: Joi.date().iso().greater('now').optional(),
-      priority: Joi.string().valid('low', 'medium', 'high').optional().default('medium'),
+      priority: Joi.string().valid(
+        TASK_PRIORITY.LOW,
+        TASK_PRIORITY.MEDIUM,
+        TASK_PRIORITY.HIGH
+      ).optional().default(TASK_PRIORITY.MEDIUM),
       assignedTo: Joi.string().custom(objectId).optional(),
       assignedBy: Joi.string().custom(objectId).optional(),
       labels: Joi.array().items(Joi.string().trim().min(1).max(50)).unique().optional().default([]),
@@ -38,11 +44,6 @@ router.get('/', Auth.authenticate('user'), controller.getAllTasks); // Admin see
 router.get(
   '/:taskId',
   Auth.authenticate('user'),
-  Validate.middleware(
-    Joi.object({
-      taskId: Joi.string().custom(objectId).required(),
-    })
-  ),
   controller.getTaskById
 );
 router.put(
@@ -52,9 +53,17 @@ router.put(
     Joi.object({
       title: Joi.string().trim().min(3).max(100).optional(),
       description: Joi.string().trim().allow('').max(1000).optional(),
-      status: Joi.string().valid('pending', 'in-progress', 'completed').optional(),
+      status: Joi.string().valid(
+        TASK_STATUS.PENDING,
+        TASK_STATUS.IN_PROGRESS,
+        TASK_STATUS.COMPLETED
+      ).optional(),
       dueDate: Joi.date().iso().optional(),
-      priority: Joi.string().valid('low', 'medium', 'high').optional(),
+      priority: Joi.string().valid(
+        TASK_PRIORITY.LOW,
+        TASK_PRIORITY.MEDIUM,
+        TASK_PRIORITY.HIGH
+      ).optional(),
       labels: Joi.array().items(Joi.string().trim().min(1).max(50)).unique().optional(),
       blockedBy: Joi.array().items(Joi.string().custom(objectId)).unique().optional(),
     })
@@ -64,23 +73,13 @@ router.put(
 router.delete(
   '/:taskId',
   Auth.authenticate('user'),
-  Validate.middleware(
-    Joi.object({
-      taskId: Joi.string().custom(objectId).required(),
-    })
-  ),
   controller.deleteTask
 );
 
 router.post(
   '/:taskId/attachments',
   Auth.authenticate('user'),
-  upload.array('attachments'), // form-data field should be named `attachments`
-  Validate.middleware(
-    Joi.object({
-      taskId: Joi.string().custom(objectId).required(),
-    })
-  ),
+  upload.array('attachments'), 
   controller.uploadAttachments
 );
 

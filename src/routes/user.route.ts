@@ -4,6 +4,7 @@ import { Auth } from '@middlewares/auth.middleware';
 import { BasicAuth } from '@middlewares/basicAuth';
 import { Validate } from '@middlewares/validate';
 import Joi from 'joi';
+import { USER_MESSAGES } from '@common/constants/userMessage';
 
 const router = Router();
 const controller = new UserController();
@@ -42,7 +43,7 @@ router.post(
         .min(8)
         .max(100)
         .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$'))
-        .message('Password must include upper, lower, number and be at least 8 characters')
+        .message(USER_MESSAGES.PASSWORD_POLICY)
         .required(),
     })
   ),
@@ -83,7 +84,7 @@ router.post(
         .min(8)
         .max(100)
         .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$'))
-        .message('Password must be strong (upper, lower, number)')
+        .message(USER_MESSAGES.PASSWORD_POLICY)
         .required(),
     })
   ),
@@ -114,7 +115,7 @@ router.post(
         .min(8)
         .max(100)
         .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$'))
-        .message('Password must be strong (upper, lower, number)')
+        .message(USER_MESSAGES.PASSWORD_POLICY)
         .required(),
     })
   ),

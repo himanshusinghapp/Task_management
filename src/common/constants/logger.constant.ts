@@ -22,6 +22,7 @@ export const LOGGER_MESSAGES = {
 TASKS_ASSIGNED: 'Tasks assigned to project',
   ASSIGN_TASKS_FAILED: 'Failed to assign tasks to project',
   FETCH_PROJECTS_FAILED: 'Failed to fetch projects',
+  PROJECT_FETCH_FAILED: 'Failed to fetch project',
   COMMENT_CREATED: 'Comment created',
   COMMENT_CREATION_FAILED: 'Comment creation failed',
   COMMENT_UPDATED: 'Comment updated',
