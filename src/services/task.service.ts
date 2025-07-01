@@ -2,8 +2,9 @@ import { Exceptions } from '@common/exception';
 import { Task } from '@models';
 import { CreateTaskDto, UpdateTaskDto } from '@dto';
 import { validateObjectIdArray,getPagination ,validateObject} from '@common/helpers';
-import { TASK_STATUS,LOGGER_MESSAGES,USER_MESSAGES } from '@/common/constants';
+import { TASK_STATUS,LOGGER_MESSAGES,USER_MESSAGES, ROLE } from '@/common/constants';
 import { logServiceMethod, logServiceError ,AuditUtil,taskQuery } from '@utils';
+import mongoose from 'mongoose';
 
 const validateObjectInstance = new validateObject();
 
@@ -12,12 +13,12 @@ export class TaskService {
     try {
       logServiceMethod('TaskService', 'createTask', LOGGER_MESSAGES.CREATE, { createdBy, role, title: data.title });
       
-      if (role !== 'admin') {
+      if (role !== ROLE.ADMIN) {
         logServiceMethod('TaskService', 'createTask', LOGGER_MESSAGES.USER_CREATION_FAILED, { createdBy, role });
         throw Exceptions.Forbidden(USER_MESSAGES.ADMIN_ONLY_ASSIGN);
       }
       const value: CreateTaskDto = data;
-      value.assignedBy = createdBy;
+      // value.assignedBy = createdBy;
 
       if (value.blockedBy?.length) {
         validateObjectIdArray(value.blockedBy, 'blockedBy');
@@ -28,7 +29,7 @@ export class TaskService {
         }
       }
 
-      const task = await Task.create({ ...value, createdBy });
+      const task = await Task.create({ ...value, createdBy: new mongoose.Types.ObjectId(createdBy) });
       await AuditUtil.logActivity(
         createdBy,
         'CREATE_TASK',
@@ -37,7 +38,7 @@ export class TaskService {
         `Task "${task.title}" created by admin`
       );
       const populatedTask = await Task.findById(task._id)
-        .populate('blockedBy assignedTo assignedBy');
+        .populate('blockedBy assignedTo');
       
       logServiceMethod('TaskService', 'createTask', LOGGER_MESSAGES.CREATE, { taskId: task._id, createdBy, title: task.title });
       return populatedTask;
@@ -72,7 +73,7 @@ export class TaskService {
         ? String(task.assignedTo._id)
         : String(task.assignedTo);
       
-      if (role !== 'user' && assignedToId !== userId) {
+      if (role !== ROLE.USER && assignedToId !== userId) {
         logServiceMethod('TaskService', 'getTaskById', LOGGER_MESSAGES.TASK_FETCH_FAILED, { taskId, role, userId, assignedToId });
         throw Exceptions.Forbidden(USER_MESSAGES.ACCESS_DENIED);
       }
@@ -107,7 +108,7 @@ export class TaskService {
         ? String(task.assignedTo._id)
         : String(task.assignedTo);
       
-      if (role !== 'user' && assignedToId !== userId) {
+      if (role !== ROLE.USER && assignedToId !== userId) {
         logServiceMethod('TaskService', 'updateTask', LOGGER_MESSAGES.TASK_FETCH_FAILED, { taskId, userId, role, assignedToId });
         throw Exceptions.Forbidden(USER_MESSAGES.ACCESS_DENIED);
       }
@@ -150,7 +151,7 @@ export class TaskService {
       validateObjectInstance.validateObjectId(taskId, 'task ID');
       const task = await this.checkTask(taskId);
       
-      if (role !== 'user' && String(task.assignedTo) !== userId) {
+      if (role !== ROLE.ADMIN && String(task.assignedTo) !== userId) {
         logServiceMethod('TaskService', 'deleteTask', LOGGER_MESSAGES.TASK_FETCH_FAILED, { taskId, userId, role, assignedTo: task.assignedTo });
         throw Exceptions.Forbidden(USER_MESSAGES.ACCESS_DENIED);
       }
@@ -215,9 +216,9 @@ export class TaskService {
       const start = new Date(year, month - 1, 1);
       const end = new Date(year, month, 0, 23, 59, 59);
       const filter: any = { dueDate: { $gte: start, $lte: end } };
-      if (role !== 'admin') filter.assignedTo = userId;
+      filter.assignedTo = userId;
       
-      const tasks = await Task.find(filter).populate('assignedTo createdBy assignedBy');
+      const tasks = await Task.find(filter).populate('assignedTo createdBy ');
       
       logServiceMethod('TaskService', 'filterTasksByMonthYear', LOGGER_MESSAGES.TASK_FETCHED, { userId, role, month, year, count: tasks.length });
       return tasks;

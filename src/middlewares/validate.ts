@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import Joi from 'joi';
-import { ResponseHelper } from '@common/helpers/response.helper';
+import { ResponseHelper } from '@common/helpers';
 import { HTTP_STATUS } from '@/common/constants';
 
 export class Validate {

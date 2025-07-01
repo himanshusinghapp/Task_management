@@ -1,6 +1,3 @@
-import { DTO_CONSTANTS } from '@common/constants/dto.constants';
-
-// Comment DTOs (no Joi)
 export interface CommentDto {
   content: string;
   parentId?: string | null;
@@ -25,10 +22,6 @@ export interface UpdateCommentDto {
 export interface CommentIdDto {
   commentId: string;
 }
-
-// export interface TaskIdDto {
-//   taskId: string;
-// }
 
 export interface ParentIdDto {
   parentId?: string | null;

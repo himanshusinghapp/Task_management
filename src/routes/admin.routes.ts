@@ -23,20 +23,20 @@ router.post(
   controller.login
 );
 
-router.get('/profile', Auth.authenticate(ROLE.ADMIN), controller.getProfile);
-router.delete('/logout', Auth.authenticate(ROLE.ADMIN), controller.logout);
-router.get('/users', Auth.authenticate(ROLE.ADMIN), controller.getAllUsers);
+router.get('/profile', Auth.authenticate([ROLE.ADMIN]), controller.getProfile);
+router.delete('/logout', Auth.authenticate([ROLE.ADMIN]), controller.logout);
+router.get('/users', Auth.authenticate([ROLE.ADMIN]), controller.getAllUsers);
 
 router.patch(
   '/block/:userId',
-  Auth.authenticate(ROLE.ADMIN),
+  Auth.authenticate([ROLE.ADMIN]),
   Validate.params(userIdParam),
   controller.blockUser
 );
 
 router.patch(
   '/unblock/:userId',
-  Auth.authenticate(ROLE.ADMIN),
+  Auth.authenticate([ROLE.ADMIN]),
   Validate.params(userIdParam),
   controller.unblockUser
 );
@@ -47,7 +47,7 @@ const searchQuery = Joi.object({
 
 router.get(
   '/search',
-  Auth.authenticate(ROLE.ADMIN),
+  Auth.authenticate([ROLE.ADMIN]),
   Validate.query(searchQuery),
   controller.searchUsers
 );

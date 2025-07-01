@@ -43,9 +43,6 @@
  *         assignedTo:
  *           type: string
  *           example: 60d5ec49f1b2c4b3c8e4b124
- *         assignedBy:
- *           type: string
- *           example: 60d5ec49f1b2c4b3c8e4b125
  *         createdBy:
  *           type: string
  *           example: 60d5ec49f1b2c4b3c8e4b125
@@ -177,7 +174,7 @@
 
 /**
  * @swagger
- * /tasks:
+ * /tasks/:
  *   post:
  *     summary: Create a new task
  *     tags: [Task]
@@ -231,7 +228,7 @@
 
 /**
  * @swagger
- * /tasks:
+ * /tasks/:
  *   get:
  *     summary: Get all tasks
  *     tags: [Task]
@@ -481,7 +478,7 @@
 
 /**
  * @swagger
- * /tasks/filter/by-label/{label}:
+ * /tasks/filter/{label}:
  *   get:
  *     summary: Get tasks by label
  *     tags: [Task]
@@ -521,7 +518,7 @@
 
 /**
  * @swagger
- * /tasks/filter/by-date/{month}/{year}:
+ * /tasks/filter/{month}/{year}:
  *   get:
  *     summary: Filter tasks by month and year
  *     tags: [Task]

@@ -3,7 +3,7 @@ import { TaskController } from '@controllers';
 import { Auth, Validate} from '@middlewares';
 import Joi from 'joi';
 import { TASK_STATUS, TASK_PRIORITY,USER_MESSAGES, ROLE  } from '@common/constants';
-import { MulterUtil } from '@utils/multer';
+import { MulterUtil } from '@utils';
 import { validateObject } from '@/common/helpers';
 const router = Router();
 const controller = new TaskController();
@@ -23,7 +23,6 @@ const monthYearParam = Joi.object({
   year: Joi.number().integer().min(2000).max(9999).required(),
 });
 
-// Optionally, add query validation for getAllTasks if you support filtering/pagination
 const getAllTasksQuery = Joi.object({
   status: Joi.string().valid(TASK_STATUS.PENDING, TASK_STATUS.IN_PROGRESS, TASK_STATUS.COMPLETED).optional(),
   priority: Joi.string().valid(TASK_PRIORITY.LOW, TASK_PRIORITY.MEDIUM, TASK_PRIORITY.HIGH).optional(),
@@ -36,7 +35,7 @@ const getAllTasksQuery = Joi.object({
 
 router.post(
   '/',
-  Auth.authenticate(ROLE.ADMIN),
+  Auth.authenticate([ROLE.USER]),
   Validate.body(
     Joi.object({
       title: Joi.string().trim().min(3).max(100).required(),
@@ -48,7 +47,7 @@ router.post(
         TASK_PRIORITY.HIGH
       ).optional().default(TASK_PRIORITY.MEDIUM),
       assignedTo: Joi.string().custom(validateObjectInstance.objectId).optional(),
-      assignedBy: Joi.string().custom(validateObjectInstance.objectId).optional(),
+      // assignedBy: Joi.string().custom(validateObjectInstance.objectId).optional(),
       labels: Joi.array().items(Joi.string().trim().min(1).max(50)).unique().optional().default([]),
       blockedBy: Joi.array().items(Joi.string().custom(validateObjectInstance.objectId)).unique().optional().default([]),
     })
@@ -58,20 +57,20 @@ router.post(
 
 router.get(
   '/',
-  Auth.authenticate(ROLE.USER),
+  Auth.authenticate([ROLE.USER,ROLE.ADMIN]),
   controller.getAllTasks
 );
 
 router.get(
   '/:taskId',
-  Auth.authenticate(ROLE.USER),
+  Auth.authenticate([ROLE.USER]),
   Validate.params(objectIdParam),
   controller.getTaskById
 );
 
 router.put(
   '/:taskId',
-  Auth.authenticate(ROLE.USER),
+  Auth.authenticate([ROLE.USER]),
   Validate.params(objectIdParam),
   Validate.body(
     Joi.object({
@@ -97,14 +96,14 @@ router.put(
 
 router.delete(
   '/:taskId',
-  Auth.authenticate(ROLE.USER),
+  Auth.authenticate([ROLE.ADMIN]),
   Validate.params(objectIdParam),
   controller.deleteTask
 );
 
 router.post(
   '/:taskId/attachments',
-  Auth.authenticate(ROLE.USER),
+  Auth.authenticate([ROLE.USER , ROLE.ADMIN]),
   Validate.params(objectIdParam),
   MulterUtil.getUploader().array('attachments'), 
   controller.uploadAttachments
@@ -112,14 +111,14 @@ router.post(
 
 router.get(
   '/filter/:label',
-  Auth.authenticate(ROLE.USER),
+  Auth.authenticate([ROLE.USER,ROLE.ADMIN]),
   Validate.params(labelParam),
   controller.getTasksByLabel
 );
 
 router.get(
   '/filter/:month/:year',
-  Auth.authenticate(ROLE.USER),
+  Auth.authenticate([ROLE.USER,ROLE.ADMIN]),
   Validate.query(monthYearParam),
   controller.filterTasksByMonthYear
 );

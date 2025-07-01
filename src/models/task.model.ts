@@ -8,7 +8,6 @@ export interface ITask extends Document {
   dueDate?: Date;
   priority: TASK_PRIORITY;
   assignedTo?: mongoose.Types.ObjectId;
-  assignedBy?: mongoose.Types.ObjectId;
   createdBy: mongoose.Types.ObjectId;
   attachments?: string[];
   labels?: string[];
@@ -31,7 +30,6 @@ const taskSchema = new Schema<ITask>({
     default: TASK_PRIORITY.MEDIUM,
   },
   assignedTo: { type: Schema.Types.ObjectId, ref: 'User' },
-  assignedBy: { type: Schema.Types.ObjectId, ref: 'Admin', required: true },
   createdBy: { type: Schema.Types.ObjectId, ref: 'Admin', required: true },
   attachments: [{ type: String }],
   labels: [{ type: String, index: true }],

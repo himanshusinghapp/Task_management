@@ -1,6 +1,3 @@
-import { DTO_CONSTANTS } from '@common/constants/dto.constants';
-
-// Admin Registration DTO
 export interface CreateAdminDto {
   name: string;
   email: string;

@@ -146,7 +146,7 @@ export class UserService {
       await RedisUtil.set(
         `session:user:${user._id}`,
         JSON.stringify({
-          id: user._id,
+          _id: user._id,
           email: user.email,
           role: ROLE.USER,
           isActive: user.isActive,
@@ -268,7 +268,6 @@ export class UserService {
   async getProfile(userId: string) {
     try {
       logServiceMethod('UserService', 'getProfile', LOGGER_MESSAGES.USER_FETCHED, { userId });
-      
       const user = await User.findById(userId).select('-password').lean();
       if (!user) {
         logServiceMethod('UserService', 'getProfile', LOGGER_MESSAGES.USER_CREATION_FAILED, { userId });

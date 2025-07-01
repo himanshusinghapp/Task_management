@@ -18,6 +18,7 @@ export const USER_MESSAGES = {
   PASSWORD_RESET_SUCCESS: 'Password reset successful',
   PASSWORD_CHANGED_SUCCESS: 'Password changed successfully',
   PROFILE_UPDATED_SUCCESS: 'Profile updated successfully',
+  TOKEN_MISSING: 'Token missing',
   LOGOUT_SUCCESS: 'Logged out successfully',
   UNAUTHORIZED: 'Unauthorized access',
   INVALID_TOKEN: 'Invalid token',

@@ -2,9 +2,7 @@ import bcrypt from 'bcrypt';
 import { Admin,User  } from '@models';
 import { hashPassword } from '@common/helpers';
 import { USER_MESSAGES,LOGGER_MESSAGES, ROLE } from '@common/constants';
-import { logServiceMethod, logServiceError,adminQuery,userQuery } from '@utils';
-import { JwtUtil } from '@utils/jwt.utils';
-import { RedisUtil } from '@utils/reddis';
+import { logServiceMethod, logServiceError,adminQuery,userQuery,JwtUtil,RedisUtil } from '@utils';
 import { Exceptions } from '@common/exception';
 
 export class AdminService {

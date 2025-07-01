@@ -4,8 +4,9 @@ import swaggerJsDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerOptions } from './config/swagger.config';
 import { connectDB } from './config/db';
-import routes from './routes';
-import { errorHandler } from '@middlewares';
+// import routes from './routes';
+import { ErrorHandler } from '@middlewares';
+import RouteRegistry from './routes';
 
 dotenv.config();
 const app = express();
@@ -23,8 +24,8 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs, {
     showCommonExtensions: true,
   },
 }));
-app.use(routes);
-app.use(errorHandler);
+app.use(RouteRegistry.getRouter());
+app.use(ErrorHandler.handle);
 const port = process.env.PORT
 app.listen(port, () => {
   console.log(`Server running on port http://localhost:${port}/users`);

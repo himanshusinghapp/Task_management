@@ -89,11 +89,11 @@ router.post(
   controller.resetPassword
 );
 
-router.get('/profile', Auth.authenticate(ROLE.USER), controller.getProfile);
+router.get('/profile', Auth.authenticate([ROLE.USER]), controller.getProfile);
 
 router.put(
   '/profile',
-  Auth.authenticate(ROLE.USER),
+  Auth.authenticate([ROLE.USER]),
   Validate.body(
     Joi.object({
       name: Joi.string().trim().min(3).max(100).optional(),
@@ -105,7 +105,7 @@ router.put(
 
 router.post(
   '/change-password',
-  Auth.authenticate(ROLE.USER),
+  Auth.authenticate([ROLE.USER]),
   Validate.body(
     Joi.object({
       oldPassword: Joi.string().max(100).required(),
@@ -120,6 +120,6 @@ router.post(
   controller.changePassword
 );
 
-router.delete('/logout', Auth.authenticate(ROLE.USER), controller.logout);
+router.delete('/logout', Auth.authenticate([ROLE.USER]), controller.logout);
 
 export default router;

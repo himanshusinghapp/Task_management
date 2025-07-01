@@ -1,6 +1,7 @@
 import {User,Admin,Task,Project,Comment} from '@models'
 import { Exceptions } from '@common/exception/customException';
 import { USER_MESSAGES } from '@common/constants/userMessage';
+import { ROLE } from '@/common/constants';
 
 // Helper to wrap queries with error handling
 async function safeQuery<T>(fn: () => Promise<T>, errorMsg = 'Database error'): Promise<T> {
@@ -49,23 +50,23 @@ class TaskQuery {
     return safeQuery(() => Task.find({ assignedTo: userId }).populate('assignedTo createdBy'), USER_MESSAGES.TASK_QUERY_ERROR);
   }
   findAllTasks(role: string, userId: string) {
-    return safeQuery(() => Task.find(role === 'admin' ? {} : { assignedTo: userId }).populate('assignedTo createdBy'), USER_MESSAGES.TASK_QUERY_ERROR);
+    return safeQuery(() => Task.find(role === ROLE.ADMIN? {} : { assignedTo: userId }).populate('assignedTo createdBy'), USER_MESSAGES.TASK_QUERY_ERROR);
   }
   async findTasksByLabel(label: string, userId: string, role: string) {
     const filter: any = { labels: label };
-    if (role !== 'admin') filter.assignedTo = userId;
+    if (role !== ROLE.ADMIN) filter.assignedTo = userId;
     return safeQuery(() => Task.find(filter).populate('assignedTo createdBy'), USER_MESSAGES.TASK_QUERY_ERROR);
   }
   async findTasksByMonthYear(month: number, year: number, userId: string, role: string) {
     const start = new Date(year, month - 1, 1);
     const end = new Date(year, month, 0, 23, 59, 59);
     const filter: any = { dueDate: { $gte: start, $lte: end } };
-    if (role !== 'admin') filter.assignedTo = userId;
+    if (role !== ROLE.ADMIN) filter.assignedTo = userId;
     return safeQuery(() => Task.find(filter).populate('assignedTo createdBy'), USER_MESSAGES.TASK_QUERY_ERROR);
   }
   async findAllTasksPaginated(role: string, userId: string, skip: number, limit: number) {
     return safeQuery(
-      () => Task.find(role === 'admin' ? {} : { assignedTo: userId })
+      () => Task.find(role === ROLE.ADMIN ? {} : { assignedTo: userId })
         .populate('assignedTo createdBy')
         .skip(skip)
         .limit(limit),

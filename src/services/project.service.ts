@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import {logServiceMethod, logServiceError ,projectQuery,AuditUtil} from '@utils';
-import { LOGGER_MESSAGES,USER_MESSAGES } from '@common/constants';
+import { LOGGER_MESSAGES,ROLE,USER_MESSAGES } from '@common/constants';
 import { Exceptions } from '@common/exception'
 import { Project } from '@models';
 import { CreateProjectDto, UpdateProjectDto, AssignMembersDto, RemoveMembersDto, AssignTasksDto, RemoveTasksDto } from '@dto';
@@ -13,12 +13,12 @@ export class ProjectService {
     try {
       logServiceMethod('ProjectService', 'createProject', LOGGER_MESSAGES.CREATE, { createdBy, role, name: data.name });
       
-      if (role !== 'admin') {
+      if (role !== ROLE.ADMIN) {
         logServiceMethod('ProjectService', 'createProject', LOGGER_MESSAGES.USER_CREATION_FAILED, { createdBy, role });
         throw Exceptions.Forbidden(USER_MESSAGES.ADMIN_ONLY_ASSIGN);
       }
 
-      const project = await Project.create({ ...data, createdBy });
+      const project = await Project.create({ ...data, createdBy: new mongoose.Types.ObjectId(createdBy) });
       await AuditUtil.logActivity(
         createdBy,
         'CREATE_PROJECT',
@@ -213,7 +213,7 @@ export class ProjectService {
       logServiceMethod('ProjectService', 'getProjectsByUser', `Fetching projects for user`, { userId, role });
       
       const projects =
-        role === 'admin'
+        role ===ROLE.ADMIN
           ? await projectQuery.getAllProjects()
           : await projectQuery.getProjectsByUserId(userId);
       
@@ -227,7 +227,7 @@ export class ProjectService {
 
   // Helper to check admin or project owner
   private checkAdminOrOwner(project: any, userId: string, role: string) {
-    if (role !== 'admin' && String(project.createdBy) !== userId) {
+    if (role !== ROLE.ADMIN && String(project.createdBy) !== userId) {
       logServiceMethod('ProjectService', 'checkAdminOrOwner', LOGGER_MESSAGES.FETCH_PROJECTS_FAILED, { projectId: project._id, userId, role, createdBy: project.createdBy });
       throw Exceptions.Forbidden(USER_MESSAGES.ACCESS_DENIED);
     }

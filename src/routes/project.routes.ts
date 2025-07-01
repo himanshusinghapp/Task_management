@@ -16,7 +16,7 @@ const projectIdParam = Joi.object({
 
 router.post(
   '/',
-  Auth.authenticate(ROLE.ADMIN),
+  Auth.authenticate([ROLE.ADMIN]),
   Validate.body(
     Joi.object({
       name: Joi.string().trim().min(3).max(100).required().messages({
@@ -36,7 +36,7 @@ router.post(
 
 router.patch(
   '/:projectId',
-  Auth.authenticate(ROLE.ADMIN),
+  Auth.authenticate([ROLE.ADMIN]),
   Validate.params(projectIdParam),
   Validate.body(
     Joi.object({
@@ -55,14 +55,14 @@ router.patch(
 
 router.delete(
   '/:projectId',
-  Auth.authenticate(ROLE.ADMIN),
+  Auth.authenticate([ROLE.ADMIN]),
   Validate.params(projectIdParam),
   controller.deleteProject
 );
 
 router.post(
   '/:projectId/assign-members',
-  Auth.authenticate(ROLE.ADMIN),
+  Auth.authenticate([ROLE.ADMIN]),
   Validate.params(projectIdParam),
   Validate.body(
     Joi.object({
@@ -80,7 +80,7 @@ router.post(
 
 router.patch(
   '/:projectId/remove-members',
-  Auth.authenticate(ROLE.ADMIN),
+  Auth.authenticate([ROLE.ADMIN]),
   Validate.params(projectIdParam),
   Validate.body(
     Joi.object({
@@ -98,7 +98,7 @@ router.patch(
 
 router.post(
   '/:projectId/assign-tasks',
-  Auth.authenticate(ROLE.ADMIN),
+  Auth.authenticate([ROLE.ADMIN]),
   Validate.params(projectIdParam),
   Validate.body(
     Joi.object({
@@ -116,7 +116,7 @@ router.post(
 
 router.patch(
   '/:projectId/remove-tasks/',
-  Auth.authenticate(ROLE.ADMIN),
+  Auth.authenticate([ROLE.ADMIN]),
   Validate.params(projectIdParam),
   Validate.body(
     Joi.object({
@@ -132,6 +132,6 @@ router.patch(
   controller.removeTasks
 );
 
-router.get('/', Auth.authenticate(ROLE.ADMIN),  controller.getProjects);
+router.get('/', Auth.authenticate([ROLE.ADMIN]),  controller.getProjects);
 
 export default router;

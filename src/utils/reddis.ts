@@ -2,7 +2,7 @@ import Redis from 'ioredis';
 
 export class RedisUtil {
   private static client = new Redis({
-    host: process.env.REDIS_HOST || '127.0.0.1',
+    host: process.env.REDIS_HOST ,
     port: +(process.env.REDIS_PORT || 6379),
   });
 
@@ -15,5 +15,4 @@ export class RedisUtil {
   static del(key: string) {
     return this.client.del(key);
   }
-  // Add other redis methods as needed
 }

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { HTTP_STATUS } from '@common/constants/httpStatus';
-import { ResponseHelper } from '@common/helpers/response.helper';
+import { HTTP_STATUS } from '@common/constants';
+import { ResponseHelper } from '@common/helpers';
 
 export class ErrorHandler {
   static handle(err: any, req: Request, res: Response, next: NextFunction) {

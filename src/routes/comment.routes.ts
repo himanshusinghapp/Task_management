@@ -12,7 +12,7 @@ const validateObjectInstance = new validateObject();
 
 router.post(
   '/',
-  Auth.authenticate(ROLE.USER),
+  Auth.authenticate([ROLE.USER]),
   Validate.body(
     Joi.object({
       content: Joi.string().trim().min(1).max(1000).required().messages({
@@ -30,7 +30,7 @@ router.post(
   ),
   commentController.createComment
 );
-router.get('/task/:taskId', Auth.authenticate(ROLE.USER),
+router.get('/task/:taskId', Auth.authenticate([ROLE.USER]),
 Validate.params(
   Joi.object({
     taskId:Joi.string().custom(validateObjectInstance.objectId).required()
@@ -41,7 +41,7 @@ Validate.params(
 
 router.patch(
   '/:commentId',
-  Auth.authenticate(ROLE.USER),
+  Auth.authenticate([ROLE.USER]),
   Validate.params(
     Joi.object({
       commentId: Joi.string().custom(validateObjectInstance.objectId).required(),
@@ -59,12 +59,12 @@ router.patch(
   ),
   commentController.updateComment
 );
-router.delete('/:commentId', Auth.authenticate(ROLE.USER),Validate.params(
+router.delete('/:commentId', Auth.authenticate([ROLE.USER]),Validate.params(
   Joi.object({
     commentId: Joi.string().custom(validateObjectInstance.objectId).required(),
   })
 ),commentController.deleteComment);
-router.get('/', Auth.authenticate(ROLE.USER), 
+router.get('/', Auth.authenticate([ROLE.USER]), 
 Validate.params(
   Joi.object({
     commentId: Joi.string().custom(validateObjectInstance.objectId).required(),

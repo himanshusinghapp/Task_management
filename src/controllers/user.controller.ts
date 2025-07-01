@@ -126,10 +126,11 @@ export class UserController {
   async getProfile(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const user = req.user;
+      if (!user || !user._id) {
+        return res.status(400).json({ message: 'User ID missing in request' });
+      }
       logControllerMethod('UserController', 'getProfile', LOGGER_MESSAGES.USER_FETCHED, { userId: user._id, ip: req.ip });
-      
       const profile = await userService.getProfile(user._id);
-      
       logControllerMethod('UserController', 'getProfile', LOGGER_MESSAGES.USER_FETCHED, { userId: user._id });
       return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.PROFILE_FETCHED, profile));
     } catch (err: any) {
