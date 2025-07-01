@@ -1,66 +1,136 @@
-import { logMessage } from '@utils/logger';
-import { LOGGER_MESSAGES } from '@common/constants/logger.constant';
-import { Exceptions } from '@common/exception/customException';
-import { commentQuery } from '@utils/query';
-import { logActivity } from '@utils/audit.util';
-import { USER_MESSAGES } from '@/common/constants/userMessage';
-import { CommentDto, UpdateCommentDto } from '@dto/comment.dto';
+import { Comment } from '@models';
+import { USER_MESSAGES } from '@common/constants';
+import { Exceptions } from '@common/exception';
+import { CreateCommentDto, UpdateCommentDto } from '@dto';
+import { validateObject } from '@common/helpers';
+import { logServiceMethod, logServiceError,AuditUtil ,commentQuery} from '@utils';
+import { LOGGER_MESSAGES } from '@common/constants';
+
+const validateObjectInstance = new validateObject();
 
 export class CommentService {
-  async addComment(data: CommentDto, userId: string) {
-    const comment = await commentQuery.create({ ...data, createdBy: userId });
-    await logActivity(userId, 'ADD_COMMENT', comment._id.toString(), 'Comment', `Comment added on task ${data.taskId}`);
-    logMessage('info', LOGGER_MESSAGES.COMMENT_CREATED, { userId, commentId: comment._id });
-    return { id: comment._id, content: comment.content, taskId: comment.taskId, parentId: comment.parentId, createdBy: comment.createdBy };
+  async createComment(data: CreateCommentDto, createdBy: string) {
+    try {
+      logServiceMethod('CommentService', 'createComment', LOGGER_MESSAGES.CREATE, { createdBy, taskId: data.taskId });
+      
+      await validateObjectInstance.validateObjectId(data.taskId, 'task ID');
+      const comment = await Comment.create({ ...data, createdBy });
+      await AuditUtil.logActivity(
+        createdBy,
+        'CREATE_COMMENT',
+        String(comment._id),
+        'Comment',
+        `Comment created on task`
+      );
+
+      logServiceMethod('CommentService', 'createComment', LOGGER_MESSAGES.CREATE, { commentId: comment._id, createdBy, taskId: data.taskId });
+      return comment;
+    } catch (error) {
+      logServiceError('CommentService', 'createComment', error, { createdBy, taskId: data.taskId });
+      throw error;
+    }
   }
 
-  async getCommentsByTask(taskId: string) {
-    return await commentQuery.findByTask(taskId);
+  async getAllComments(taskId: string) {
+    try {
+      logServiceMethod('CommentService', 'getAllComments', LOGGER_MESSAGES.COMMENT_FETCHED, { taskId});
+      await validateObjectInstance.validateObjectId(taskId, 'task ID');
+      // No pagination supported, use findByTask
+      const comments = await commentQuery.findByTask(taskId);
+      logServiceMethod('CommentService', 'getAllComments', LOGGER_MESSAGES.COMMENT_FETCHED, { taskId, count: comments.length });
+      return comments;
+    } catch (error) {
+      logServiceError('CommentService', 'getAllComments', error, { taskId });
+      throw error;
+    }
   }
 
   async getCommentById(commentId: string) {
-    const comment = await this.checkComment(commentId);
-    return comment;
+    try {
+      logServiceMethod('CommentService', 'getCommentById', LOGGER_MESSAGES.COMMENT_FETCHED, { commentId });
+      
+      await validateObjectInstance.validateObjectId(commentId, 'comment ID');
+      const comment = await this.checkComment(commentId);
+      
+      logServiceMethod('CommentService', 'getCommentById', LOGGER_MESSAGES.COMMENT_FETCHED, { commentId });
+      return comment;
+    } catch (error) {
+      logServiceError('CommentService', 'getCommentById', error, { commentId });
+      throw error;
+    }
   }
 
   async updateComment(commentId: string, userId: string, data: UpdateCommentDto) {
-    const comment = await this.checkComment(commentId);
-    const createdById = comment.createdBy._id ? String(comment.createdBy._id) : String(comment.createdBy);
-    if (createdById !== userId) {
-      throw Exceptions.Forbidden(USER_MESSAGES.UNAUTHORIZED_UPDATE_COMMENT);
+    try {
+      logServiceMethod('CommentService', 'updateComment', LOGGER_MESSAGES.UPDATE, { commentId, userId, updateData: Object.keys(data) });
+      
+      await validateObjectInstance.validateObjectId(commentId, 'comment ID');
+      const comment = await this.checkComment(commentId);
+      
+      if (String(comment.createdBy) !== userId) {
+        logServiceMethod('CommentService', 'updateComment', LOGGER_MESSAGES.COMMENT_FETCH_FAILED, { commentId, userId, createdBy: comment.createdBy });
+        throw Exceptions.Forbidden(USER_MESSAGES.ACCESS_DENIED);
+      }
+
+      Object.assign(comment, data);
+      await comment.updateOne(data, { runValidators: true });
+
+      await AuditUtil.logActivity(
+        userId,
+        'UPDATE_COMMENT',
+        String(comment._id),
+        'Comment',
+        `Comment updated`
+      );
+
+      logServiceMethod('CommentService', 'updateComment', LOGGER_MESSAGES.UPDATE, { commentId, userId, updateData: Object.keys(data) });
+      return comment;
+    } catch (error) {
+      logServiceError('CommentService', 'updateComment', error, { commentId, userId, updateData: Object.keys(data) });
+      throw error;
     }
-    comment.content = data.content;
-    await comment.save();
-    return { id: comment._id, content: comment.content, taskId: comment.taskId, parentId: comment.parentId, createdBy: comment.createdBy };
   }
 
   async deleteComment(commentId: string, userId: string) {
-    const comment = await this.checkComment(commentId);
-    const createdById = comment.createdBy._id ? String(comment.createdBy._id) : String(comment.createdBy);
-    if (createdById !== userId) {
-      throw Exceptions.Forbidden(USER_MESSAGES.UNAUTHORIZED_DELETE_COMMENT);
+    try {
+      logServiceMethod('CommentService', 'deleteComment', LOGGER_MESSAGES.DELETE, { commentId, userId });
+      
+      await validateObjectInstance.validateObjectId(commentId, 'comment ID');
+      const comment = await this.checkComment(commentId);
+      
+      if (String(comment.createdBy) !== userId) {
+        logServiceMethod('CommentService', 'deleteComment', LOGGER_MESSAGES.COMMENT_FETCH_FAILED, { commentId, userId, createdBy: comment.createdBy });
+        throw Exceptions.Forbidden(USER_MESSAGES.ACCESS_DENIED);
+      }
+      
+      await comment.deleteOne();
+      await AuditUtil.logActivity(
+        userId,
+        'DELETE_COMMENT',
+        commentId,
+        'Comment',
+        `Comment deleted`
+      );
+      
+      logServiceMethod('CommentService', 'deleteComment', LOGGER_MESSAGES.DELETE, { commentId, userId });
+      return { commentId };
+    } catch (error) {
+      logServiceError('CommentService', 'deleteComment', error, { commentId, userId });
+      throw error;
     }
-    await comment.deleteOne();
-    return { id: commentId };
-  }
-
-  async getAllComments(role: string, userId: string) {
-    return role === 'admin'
-      ? await commentQuery.findAll()
-      : await commentQuery.findByUser(userId);
-  }
-
-  async getCommentsByUser(userId: string) {
-    return await commentQuery.findByUser(userId);
-  }
-
-  async getCommentsByTaskAndUser(taskId: string, userId: string) {
-    return await commentQuery.findByTaskAndUser(taskId, userId);
   }
 
   async checkComment(commentId: string) {
-    const comment = await commentQuery.findById(commentId);
-    if (!comment) throw Exceptions.NotFound(USER_MESSAGES.COMMENT_NOT_FOUND);
-    return comment;
+    try {
+      const comment = await commentQuery.findById(commentId);
+      if (!comment) {
+        logServiceMethod('CommentService', 'checkComment', LOGGER_MESSAGES.COMMENT_FETCH_FAILED, { commentId });
+        throw Exceptions.NotFound(USER_MESSAGES.NOT_FOUND);
+      }
+      return comment;
+    } catch (error) {
+      logServiceError('CommentService', 'checkComment', error, { commentId });
+      throw error;
+    }
   }
 }

@@ -12,22 +12,21 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-/**
- * Unified, reusable email sender
- */
-export const sendEmail = async ({
-  to,
-  subject,
-  text,
-}: {
-  to: string;
-  subject: string;
-  text: string;
-}): Promise<void> => {
-  await transporter.sendMail({
-    from: EMAIL_CONFIG.FROM,
+export class EmailUtil {
+  static async sendEmail({
     to,
     subject,
     text,
-  });
-};
+  }: {
+    to: string;
+    subject: string;
+    text: string;
+  }): Promise<void> {
+    await transporter.sendMail({
+      from: EMAIL_CONFIG.FROM,
+      to,
+      subject,
+      text,
+    });
+  }
+}

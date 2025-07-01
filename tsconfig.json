@@ -86,13 +86,14 @@
     "paths": {
       "@/*": ["./*"],
       "@config/*": ["config/*"],
-      "@controllers/*": ["controllers/*"],
-      "@services/*": ["services/*"],
-      "@utils/*": ["utils/*"],
+      "@controllers": ["controllers/index.ts"],
+      "@services": ["services/index.ts"],
+      "@utils/*":["utils/*"],
+      "@utils": ["utils/index.ts"],
       "@common/*": ["common/*"],
-      "@dto/*": ["dto/*"],
-      "@models/*": ["models/*"],
-      "@middlewares/*": ["middlewares/*"]
+      "@dto": ["dto/index.ts"],
+      "@models": ["models/index.ts"],
+      "@middlewares": ["middlewares/index.ts"]
     },
     "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */
     // "preserveSymlinks": true,                         /* Disable resolving symlinks to their realpath. This correlates to the same flag in node. */

@@ -1,17 +1,75 @@
 import { Request, Response, NextFunction } from 'express';
 import Joi from 'joi';
+import { ResponseHelper } from '@common/helpers/response.helper';
+import { HTTP_STATUS } from '@/common/constants';
 
 export class Validate {
-  static middleware(schema: Joi.ObjectSchema<any>) {
-    return (req: Request, res: Response, next: NextFunction) => {
-      const { error, value } = schema.validate(req.body);
+  /**
+   * @description Validate Body of Incoming Request
+   */
+  static body(schema: Joi.ObjectSchema<any>) {
+    return async (req: Request, res: Response, next: NextFunction) => {
+      const { error } = schema.validate(req.body);
       if (error) {
-        return res.status(400).json({
-          status: false,
-          message: error.details[0].message,
-        });
+        const err = ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, error?.message || error?.details?.[0]?.message);
+        return res.status(err.statusCode).send(err);
       }
-      req.body = value;
+      next();
+    };
+  }
+
+  /**
+   * @description Validate Params of Incoming Request
+   */
+  static params(schema: Joi.ObjectSchema<any>) {
+    return async (req: Request, res: Response, next: NextFunction) => {
+      const { error } = schema.validate(req.params);
+      if (error) {
+        const err = ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, error?.message || error?.details?.[0]?.message);
+        return res.status(err.statusCode).send(err);
+      }
+      next();
+    };
+  }
+
+  /**
+   * @description Validate Query of Incoming Request
+   */
+  static query(schema: Joi.ObjectSchema<any>) {
+    return async (req: Request, res: Response, next: NextFunction) => {
+      const { error } = schema.validate(req.query);
+      if (error) {
+        const err = ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, error?.message || error?.details?.[0]?.message);
+        return res.status(err.statusCode).send(err);
+      }
+      next();
+    };
+  }
+
+  /**
+   * @description Validate Headers of Incoming Request
+   */
+  static headers(schema: Joi.ObjectSchema<any>) {
+    return async (req: Request, res: Response, next: NextFunction) => {
+      const { error } = schema.validate(req.headers);
+      if (error) {
+        const err = ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, error?.message || error?.details?.[0]?.message);
+        return res.status(err.statusCode).send(err);
+      }
+      next();
+    };
+  }
+
+  /**
+   * @description Validate Cookies of Incoming Request
+   */
+  static cookies(schema: Joi.ObjectSchema<any>) {
+    return async (req: Request, res: Response, next: NextFunction) => {
+      const { error } = schema.validate(req.cookies);
+      if (error) {
+        const err = ResponseHelper.error(HTTP_STATUS.BAD_REQUEST, error?.message || error?.details?.[0]?.message);
+        return res.status(err.statusCode).send(err);
+      }
       next();
     };
   }

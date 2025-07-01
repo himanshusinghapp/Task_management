@@ -6,4 +6,8 @@
 // - Math.floor(...) truncates to an integer in [100000, 999999].
 // - .toString() converts the number to a string.
 // This ensures the OTP is always a 6-digit number (100000 to 999999).
-export const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString();
+export class GeneratorUtil {
+  static generateOtp(): string {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  }
+}

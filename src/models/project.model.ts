@@ -1,8 +1,8 @@
 import mongoose, { Schema } from 'mongoose';
 
 const projectSchema = new Schema({
-  name: { type: String, required: true, trim: true, maxlength: 100, unique: true, index: true },
-  description: { type: String, trim: true, maxlength: 1000 },
+  name: { type: String, required: true, trim: true, unique: true, index: true },
+  description: { type: String, trim: true},
   members: [{ type: Schema.Types.ObjectId, ref: 'User', index: true }],
   tasks: [{ type: Schema.Types.ObjectId, ref: 'Task', index: true }],
   createdBy: { type: Schema.Types.ObjectId, ref: 'Admin', required: true, index: true },

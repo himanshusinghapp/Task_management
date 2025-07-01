@@ -1,8 +1,20 @@
 import { Types } from 'mongoose';
-import { Exceptions } from '../exception/customException';
+import { Exceptions } from '../exception';
+import { USER_MESSAGES } from '../constants';
 
-export function validateObjectId(id: string, fieldName = 'ID') {
-  if (!Types.ObjectId.isValid(id)) {
-    throw Exceptions.BadRequest(`Invalid ${fieldName}`);
-  }
-} 
+
+export class validateObject{
+   async validateObjectId(id: string, fieldName = 'ID') {
+    if (!Types.ObjectId.isValid(id)) {
+      throw Exceptions.BadRequest(`Invalid ${fieldName}`);
+    }
+  } 
+    objectId = (value: string, helpers: any) => {
+    const mongoose = require('mongoose');
+    if (!mongoose.Types.ObjectId.isValid(value)) {
+      return helpers.error('any.invalid', { message: USER_MESSAGES.INVALID_OBJECT_ID });
+    }
+    return value;
+  };
+}
+

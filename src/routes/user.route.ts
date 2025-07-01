@@ -1,9 +1,8 @@
 import { Router } from 'express';
-import { UserController } from '@controllers/user.controller';
-import { Auth } from '@middlewares/auth.middleware';
-import { BasicAuth } from '@middlewares/basicAuth';
-import { Validate } from '@middlewares/validate';
+import { UserController } from '@controllers';
+import { Auth, Validate,BasicAuth } from '@middlewares';
 import Joi from 'joi';
+import { USER_MESSAGES,ROLE } from '@common/constants';
 
 const router = Router();
 const controller = new UserController();
@@ -11,7 +10,7 @@ const controller = new UserController();
 router.post(
   '/request-email-verification',
   BasicAuth.public(),
-  Validate.middleware(
+  Validate.body(
     Joi.object({
       email: Joi.string().trim().email().max(100).required(),
     })
@@ -22,7 +21,7 @@ router.post(
 router.post(
   '/verify-email-otp',
   BasicAuth.public(),
-  Validate.middleware(
+  Validate.body(
     Joi.object({
       email: Joi.string().trim().email().max(100).required(),
       otp: Joi.string().trim().length(6).required(),
@@ -34,7 +33,7 @@ router.post(
 router.post(
   '/complete-signup',
   BasicAuth.public(),
-  Validate.middleware(
+  Validate.body(
     Joi.object({
       name: Joi.string().trim().min(3).max(100).required(),
       email: Joi.string().trim().email().max(100).required(),
@@ -42,7 +41,7 @@ router.post(
         .min(8)
         .max(100)
         .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$'))
-        .message('Password must include upper, lower, number and be at least 8 characters')
+        .message(USER_MESSAGES.PASSWORD_POLICY)
         .required(),
     })
   ),
@@ -52,7 +51,7 @@ router.post(
 router.post(
   '/login',
   BasicAuth.public(),
-  Validate.middleware(
+  Validate.body(
     Joi.object({
       email: Joi.string().trim().email().max(100).required(),
       password: Joi.string().trim().max(100).required(),
@@ -64,7 +63,7 @@ router.post(
 router.post(
   '/forgot-password',
   BasicAuth.public(),
-  Validate.middleware(
+  Validate.body(
     Joi.object({
       email: Joi.string().trim().email().max(100).required(),
     })
@@ -75,7 +74,7 @@ router.post(
 router.post(
   '/reset-password',
   BasicAuth.public(),
-  Validate.middleware(
+  Validate.body(
     Joi.object({
       userId: Joi.string().required(),
       otp: Joi.string().trim().length(6).required(),
@@ -83,19 +82,19 @@ router.post(
         .min(8)
         .max(100)
         .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$'))
-        .message('Password must be strong (upper, lower, number)')
+        .message(USER_MESSAGES.PASSWORD_POLICY)
         .required(),
     })
   ),
   controller.resetPassword
 );
 
-router.get('/profile', Auth.authenticate('user'), controller.getProfile);
+router.get('/profile', Auth.authenticate(ROLE.USER), controller.getProfile);
 
 router.put(
   '/profile',
-  Auth.authenticate('user'),
-  Validate.middleware(
+  Auth.authenticate(ROLE.USER),
+  Validate.body(
     Joi.object({
       name: Joi.string().trim().min(3).max(100).optional(),
       email: Joi.string().trim().email().max(100).optional(),
@@ -106,21 +105,21 @@ router.put(
 
 router.post(
   '/change-password',
-  Auth.authenticate('user'),
-  Validate.middleware(
+  Auth.authenticate(ROLE.USER),
+  Validate.body(
     Joi.object({
       oldPassword: Joi.string().max(100).required(),
       newPassword: Joi.string()
         .min(8)
         .max(100)
         .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$'))
-        .message('Password must be strong (upper, lower, number)')
+        .message(USER_MESSAGES.PASSWORD_POLICY)
         .required(),
     })
   ),
   controller.changePassword
 );
 
-router.delete('/logout', Auth.authenticate('user'), controller.logout);
+router.delete('/logout', Auth.authenticate(ROLE.USER), controller.logout);
 
 export default router;

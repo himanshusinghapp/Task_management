@@ -26,6 +26,11 @@ export const USER_MESSAGES = {
   MISSING_USER_ID: 'Missing user ID',
   PROFILE_FETCHED:'profile fetched',
   INVALID_OR_EXPIRED_OTP:'expired otp',
+  INVALID_OTP_:'invalid otp',
+  INVALID_OBJECT_ID:'invalid object id',
+  SESSION_EXPIRED:'session expired',
+  USER_INACTIVE:'user is inactive',
+  INTERNAL_SERVER_ERROR:'internal server error',  
 
   //admin messages
   ADMIN_EXISTS: 'Admin already exists',
@@ -96,4 +101,6 @@ export const USER_MESSAGES = {
   TASK_QUERY_ERROR: 'An error occurred while processing the task query.',
   PROJECT_QUERY_ERROR: 'An error occurred while processing the project query.',
   COMMENT_QUERY_ERROR: 'An error occurred while processing the comment query.',
+
+  PASSWORD_POLICY: 'Password must include upper, lower, number and be at least 8 characters',
 };

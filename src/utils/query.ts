@@ -1,8 +1,4 @@
-import { User } from '@models/user.model';
-import { Admin } from '@models/admin.model';
-import { Task } from '@models/task.model';
-import { Project } from '@models/project.model';
-import { Comment } from '@models/comment.model';
+import {User,Admin,Task,Project,Comment} from '@models'
 import { Exceptions } from '@common/exception/customException';
 import { USER_MESSAGES } from '@common/constants/userMessage';
 

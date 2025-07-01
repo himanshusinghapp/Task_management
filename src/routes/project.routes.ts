@@ -1,128 +1,137 @@
 import { Router } from 'express';
-import { ProjectController } from '@controllers/project.controller';
-import { Auth } from '@middlewares/auth.middleware';
-import { Validate } from '@middlewares/validate';
+import { ProjectController } from '@controllers';
+import { Auth, Validate } from '@middlewares';
 import Joi from 'joi';
+import { ROLE, USER_MESSAGES } from '@common/constants';
+import { validateObject } from '@/common/helpers';
 
 const router = Router();
 const controller = new ProjectController();
 
-const objectId = (value: string, helpers: any) => {
-  const mongoose = require('mongoose');
-  if (!mongoose.Types.ObjectId.isValid(value)) {
-    return helpers.error('any.invalid', { message: 'Must be a valid ObjectId' });
-  }
-  return value;
-};
+const validateObjectInstance = new validateObject();
+
+const projectIdParam = Joi.object({
+  projectId: Joi.string().custom(validateObjectInstance.objectId).required(),
+});
 
 router.post(
   '/',
-  Auth.authenticate('admin'),
-  Validate.middleware(
+  Auth.authenticate(ROLE.ADMIN),
+  Validate.body(
     Joi.object({
       name: Joi.string().trim().min(3).max(100).required().messages({
-        'string.base': 'Project name must be a string',
-        'string.empty': 'Project name is required',
-        'string.min': 'Project name must be at least 3 characters',
-        'string.max': 'Project name must be at most 100 characters',
-        'any.required': 'Project name is required',
+        'string.base': USER_MESSAGES.PROJECT_NAME_EXISTS,
+        'string.empty': USER_MESSAGES.PROJECT_NAME_EXISTS,
+        'string.min': USER_MESSAGES.PROJECT_NAME_EXISTS,
+        'string.max': USER_MESSAGES.PROJECT_NAME_EXISTS,
+        'any.required': USER_MESSAGES.PROJECT_NAME_EXISTS,
       }),
       description: Joi.string().trim().max(1000).optional().messages({
-        'string.max': 'Description must be at most 1000 characters',
+        'string.max': USER_MESSAGES.PROJECT_UPDATED,
       }),
     })
   ),
-  (req, res, next) => controller.createProject(req, res, next)
+  controller.createProject
 );
 
 router.patch(
   '/:projectId',
-  Auth.authenticate('admin'),
-  Validate.middleware(
+  Auth.authenticate(ROLE.ADMIN),
+  Validate.params(projectIdParam),
+  Validate.body(
     Joi.object({
       name: Joi.string().trim().min(3).max(100).optional().messages({
-        'string.base': 'Project name must be a string',
-        'string.min': 'Project name must be at least 3 characters',
-        'string.max': 'Project name must be at most 100 characters',
+        'string.base': USER_MESSAGES.PROJECT_NAME_EXISTS,
+        'string.min': USER_MESSAGES.PROJECT_NAME_EXISTS,
+        'string.max': USER_MESSAGES.PROJECT_NAME_EXISTS,
       }),
       description: Joi.string().trim().max(1000).optional().messages({
-        'string.max': 'Description must be at most 1000 characters',
+        'string.max': USER_MESSAGES.PROJECT_UPDATED,
       }),
     })
   ),
-  (req, res, next) => controller.updateProject(req, res, next)
+  controller.updateProject
 );
 
-router.delete('/:projectId', Auth.authenticate('admin'), (req, res, next) => controller.deleteProject(req, res, next));
+router.delete(
+  '/:projectId',
+  Auth.authenticate(ROLE.ADMIN),
+  Validate.params(projectIdParam),
+  controller.deleteProject
+);
 
 router.post(
   '/:projectId/assign-members',
-  Auth.authenticate('admin'),
-  Validate.middleware(
+  Auth.authenticate(ROLE.ADMIN),
+  Validate.params(projectIdParam),
+  Validate.body(
     Joi.object({
-      memberIds: Joi.array().items(Joi.string().custom(objectId).messages({
-        'any.invalid': 'Each memberId must be a valid ObjectId',
+      memberIds: Joi.array().items(Joi.string().custom(validateObjectInstance.objectId).messages({
+        'any.invalid': USER_MESSAGES.INVALID_OBJECT_ID,
       })).min(1).required().messages({
-        'array.base': 'memberIds must be an array',
-        'array.min': 'At least one memberId is required',
-        'any.required': 'memberIds is required',
+        'array.base': USER_MESSAGES.MEMBERS_ASSIGNED,
+        'array.min': USER_MESSAGES.MEMBERS_ASSIGNED,
+        'any.required': USER_MESSAGES.MEMBERS_ASSIGNED,
       }),
     })
   ),
-  (req, res, next) => controller.assignMembers(req, res, next)
+   controller.assignMembers
 );
 
 router.patch(
   '/:projectId/remove-members',
-  Auth.authenticate('admin'),
-  Validate.middleware(
+  Auth.authenticate(ROLE.ADMIN),
+  Validate.params(projectIdParam),
+  Validate.body(
     Joi.object({
-      memberIds: Joi.array().items(Joi.string().custom(objectId).messages({
-        'any.invalid': 'Each memberId must be a valid ObjectId',
+      memberIds: Joi.array().items(Joi.string().custom(validateObjectInstance.objectId).messages({
+        'any.invalid': USER_MESSAGES.INVALID_OBJECT_ID,
       })).min(1).required().messages({
-        'array.base': 'memberIds must be an array',
-        'array.min': 'At least one memberId is required',
-        'any.required': 'memberIds is required',
+        'array.base': USER_MESSAGES.MEMEBERS_REMOVED,
+        'array.min': USER_MESSAGES.MEMEBERS_REMOVED,
+        'any.required': USER_MESSAGES.MEMEBERS_REMOVED,
       }),
     })
   ),
-  (req, res, next) => controller.removeMembers(req, res, next)
+   controller.removeMembers
 );
 
 router.post(
   '/:projectId/assign-tasks',
-  Auth.authenticate('admin'),
-  Validate.middleware(
+  Auth.authenticate(ROLE.ADMIN),
+  Validate.params(projectIdParam),
+  Validate.body(
     Joi.object({
-      taskIds: Joi.array().items(Joi.string().custom(objectId).messages({
-        'any.invalid': 'Each taskId must be a valid ObjectId',
+      taskIds: Joi.array().items(Joi.string().custom(validateObjectInstance.objectId).messages({
+        'any.invalid': USER_MESSAGES.INVALID_OBJECT_ID,
       })).min(1).required().messages({
-        'array.base': 'taskIds must be an array',
-        'array.min': 'At least one taskId is required',
-        'any.required': 'taskIds is required',
+        'array.base': USER_MESSAGES.TASKS_ASSIGNED,
+        'array.min': USER_MESSAGES.TASKS_ASSIGNED,
+        'any.required': USER_MESSAGES.TASKS_ASSIGNED,
       }),
     })
   ),
-  (req, res, next) => controller.assignTasks(req, res, next)
+  controller.assignTasks
 );
 
 router.patch(
-  '/:projectId/remove-tasks',
-  Auth.authenticate('admin'),
-  Validate.middleware(
+  '/:projectId/remove-tasks/',
+  Auth.authenticate(ROLE.ADMIN),
+  Validate.params(projectIdParam),
+  Validate.body(
     Joi.object({
-      taskIds: Joi.array().items(Joi.string().custom(objectId).messages({
-        'any.invalid': 'Each taskId must be a valid ObjectId',
+      taskIds: Joi.array().items(Joi.string().custom(validateObjectInstance.objectId).messages({
+        'any.invalid': USER_MESSAGES.INVALID_OBJECT_ID,
       })).min(1).required().messages({
-        'array.base': 'taskIds must be an array',
-        'array.min': 'At least one taskId is required',
-        'any.required': 'taskIds is required',
+        'array.base': USER_MESSAGES.TASK_REMOVED,
+        'array.min': USER_MESSAGES.TASK_REMOVED,
+        'any.required': USER_MESSAGES.TASK_REMOVED,
       }),
     })
   ),
-  (req, res, next) => controller.removeTasks(req, res, next)
+  controller.removeTasks
 );
 
-router.get('/', Auth.authenticate('admin'), (req, res, next) => controller.getProjects(req, res, next));
+router.get('/', Auth.authenticate(ROLE.ADMIN),  controller.getProjects);
 
 export default router;

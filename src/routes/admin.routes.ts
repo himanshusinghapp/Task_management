@@ -1,17 +1,20 @@
 import Joi from 'joi';
 import { Router } from 'express';
-import { AdminController } from '@controllers/admin.controller';
-import { Auth } from '@middlewares/auth.middleware';
-import { BasicAuth } from '@middlewares/basicAuth';
-import { Validate } from '@middlewares/validate';
+import { AdminController } from '@controllers';
+import { Auth, Validate,BasicAuth } from '@middlewares';
+import { ROLE } from '@/common/constants';
 
 const router = Router();
 const controller = new AdminController();
 
+const userIdParam = Joi.object({
+  userId: Joi.string().required(),
+});
+
 router.post(
   '/login',
   BasicAuth.public(),
-  Validate.middleware(
+  Validate.body(
     Joi.object({
       email: Joi.string().trim().email().max(100).required(),
       password: Joi.string().trim().max(100).required(),
@@ -20,40 +23,32 @@ router.post(
   controller.login
 );
 
-router.get('/profile', Auth.authenticate('admin'), controller.getProfile);
-router.delete('/logout', Auth.authenticate('admin'), controller.logout);
-router.get('/users', Auth.authenticate('admin'), controller.getAllUsers);
+router.get('/profile', Auth.authenticate(ROLE.ADMIN), controller.getProfile);
+router.delete('/logout', Auth.authenticate(ROLE.ADMIN), controller.logout);
+router.get('/users', Auth.authenticate(ROLE.ADMIN), controller.getAllUsers);
 
 router.patch(
   '/block/:userId',
-  Auth.authenticate('admin'),
-  Validate.middleware(
-    Joi.object({
-      userId: Joi.string().required(),
-    })
-  ),
+  Auth.authenticate(ROLE.ADMIN),
+  Validate.params(userIdParam),
   controller.blockUser
 );
 
 router.patch(
   '/unblock/:userId',
-  Auth.authenticate('admin'),
-  Validate.middleware(
-    Joi.object({
-      userId: Joi.string().required(),
-    })
-  ),
+  Auth.authenticate(ROLE.ADMIN),
+  Validate.params(userIdParam),
   controller.unblockUser
 );
 
+const searchQuery = Joi.object({
+  query: Joi.string().trim().min(1).max(100).required(),
+});
+
 router.get(
   '/search',
-  Auth.authenticate('admin'),
-  Validate.middleware(
-    Joi.object({
-      query: Joi.string().trim().min(1).max(100).required(),
-    })
-  ),
+  Auth.authenticate(ROLE.ADMIN),
+  Validate.query(searchQuery),
   controller.searchUsers
 );
 
