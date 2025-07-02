@@ -1,7 +1,7 @@
 import { createLogger, format, transports } from 'winston';
 
 class Logger {
-  private logger: any;
+  private readonly logger: any;
 
   constructor() {
     this.logger = createLogger({

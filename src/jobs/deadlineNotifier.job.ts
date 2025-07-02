@@ -1,7 +1,6 @@
 import cron from 'node-cron';
-import { Task } from '@models/task.model';
-import { sendEmail } from '@utils/email';
-import { User } from '@models/user.model';
+import { User,Task } from '@models';
+import { EmailUtil } from '@utils/email';
 
 cron.schedule('0 * * * *', async () => {
   const now = new Date();
@@ -17,7 +16,7 @@ cron.schedule('0 * * * *', async () => {
   for (const task of tasks) {
     const user = task.assignedTo as unknown as typeof User;
     if ((user as any)?.email) {
-      await sendEmail({
+      await EmailUtil.sendEmail({
         to: (user as any).email,
         subject: `Task Due Tomorrow: ${task.title}`,
         text: `Your task "${task.title}" is due on ${(task.dueDate ? task.dueDate.toDateString() : 'an unknown date')}. Please make sure it's completed on time.`,

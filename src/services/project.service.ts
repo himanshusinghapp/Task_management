@@ -4,9 +4,9 @@ import { LOGGER_MESSAGES,ROLE,USER_MESSAGES } from '@common/constants';
 import { Exceptions } from '@common/exception'
 import { Project } from '@models';
 import { CreateProjectDto, UpdateProjectDto, AssignMembersDto, RemoveMembersDto, AssignTasksDto, RemoveTasksDto } from '@dto';
-import { validateObject,validateObjectIdArray } from '@common/helpers';
+import { ValidateObject,validateObjectIdArray } from '@common/helpers';
 
-const validateObjectInstance = new validateObject();
+const validateObjectInstance = new ValidateObject();
 
 export class ProjectService {
   async createProject(data: CreateProjectDto, createdBy: string, role: string) {

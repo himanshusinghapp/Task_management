@@ -2,13 +2,13 @@ import { Router } from 'express';
 import { TaskController } from '@controllers';
 import { Auth, Validate} from '@middlewares';
 import Joi from 'joi';
-import { TASK_STATUS, TASK_PRIORITY,USER_MESSAGES, ROLE  } from '@common/constants';
+import { TASK_STATUS, TASK_PRIORITY, ROLE  } from '@common/constants';
 import { MulterUtil } from '@utils';
-import { validateObject } from '@/common/helpers';
+import { ValidateObject } from '@/common/helpers';
 const router = Router();
 const controller = new TaskController();
 
-const validateObjectInstance = new validateObject();
+const validateObjectInstance = new ValidateObject();
 
 const objectIdParam = Joi.object({
   taskId: Joi.string().custom(validateObjectInstance.objectId).required(),

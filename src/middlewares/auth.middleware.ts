@@ -13,7 +13,7 @@ export interface AuthenticatedRequest extends Request {
 
 export class Auth {
   static authenticate(allowedRoles: ROLE[]) {
-    return async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    return async (req: AuthenticatedRequest, res: Response, next: NextFunction)=>{
       const authHeader = req.headers.authorization;
       if (!authHeader?.startsWith('Bearer ')) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: USER_MESSAGES.TOKEN_MISSING });
@@ -25,6 +25,7 @@ export class Auth {
       try {
         decoded = jwt.verify(token, process.env.JWT_SECRET!);
       } catch (err) {
+        console.error('JWT verification failed:', err)
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message:USER_MESSAGES.INVALID_TOKEN});
       }
 

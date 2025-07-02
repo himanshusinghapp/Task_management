@@ -1,6 +1,6 @@
-import { validateObject } from './validateObjectId';
+import { ValidateObject } from './validateObjectId';
 
-const validateObjectInstance = new validateObject();
+const validateObjectInstance = new ValidateObject();
 
 export function validateObjectIdArray(ids: string[], fieldName = 'IDs') {
   ids.forEach(id => validateObjectInstance.validateObjectId(id, fieldName));

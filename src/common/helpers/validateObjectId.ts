@@ -3,7 +3,7 @@ import { Exceptions } from '../exception';
 import { USER_MESSAGES } from '../constants';
 
 
-export class validateObject{
+export class ValidateObject{
    async validateObjectId(id: string, fieldName = 'ID') {
     if (!Types.ObjectId.isValid(id)) {
       throw Exceptions.BadRequest(`Invalid ${fieldName}`);

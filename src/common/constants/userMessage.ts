@@ -31,7 +31,8 @@ export const USER_MESSAGES = {
   INVALID_OBJECT_ID:'invalid object id',
   SESSION_EXPIRED:'session expired',
   USER_INACTIVE:'user is inactive',
-  INTERNAL_SERVER_ERROR:'internal server error',  
+  INTERNAL_SERVER_ERROR:'internal server error',
+  SOMETHING_WRONG:'Something went wrong',  
 
   //admin messages
   ADMIN_EXISTS: 'Admin already exists',

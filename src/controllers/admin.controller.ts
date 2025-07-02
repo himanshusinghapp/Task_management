@@ -77,7 +77,7 @@ export class AdminController {
       const queryObj: SearchQueryDto = req.query as SearchQueryDto;
       logControllerMethod('AdminController', 'searchUsers', LOGGER_MESSAGES.USER_FETCHED, { query: queryObj.query });
       
-      const result = await adminService.searchUsers(queryObj.query || '');
+      const result = await adminService.searchUsers(queryObj.query ?? '');
       
       logControllerMethod('AdminController', 'searchUsers', LOGGER_MESSAGES.USER_FETCHED, { query: queryObj.query, count: result.length });
       return res.status(HTTP_STATUS.OK).json(ResponseHelper.success(USER_MESSAGES.USER_SEARCH_SUCCESS, result));

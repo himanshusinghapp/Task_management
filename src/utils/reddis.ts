@@ -1,9 +1,9 @@
 import Redis from 'ioredis';
 
 export class RedisUtil {
-  private static client = new Redis({
+  private static readonly client = new Redis({
     host: process.env.REDIS_HOST ,
-    port: +(process.env.REDIS_PORT || 6379),
+    port: +(process.env.REDIS_PORT ?? 6379),
   });
 
   static get(key: string) {

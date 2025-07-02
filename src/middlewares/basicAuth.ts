@@ -5,7 +5,7 @@ export class BasicAuth {
   static public() {
     return (req: Request, res: Response, next: NextFunction) => {
       const authHeader = req.headers.authorization;
-      if (!authHeader || !authHeader.startsWith('Basic ')) {
+      if (!authHeader?.startsWith('Basic ')) {
         return res.status(401).json({ message: USER_MESSAGES.TOKEN_MISSING  });
       }
       const base64Credentials = authHeader.split(' ')[1];

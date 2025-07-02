@@ -1,4 +1,3 @@
-// src/swagger/swagger.config.ts
 import { Options } from 'swagger-jsdoc';
 
 export const swaggerOptions: Options = {

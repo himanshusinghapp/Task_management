@@ -4,7 +4,6 @@ import swaggerJsDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerOptions } from './config/swagger.config';
 import { connectDB } from './config/db';
-// import routes from './routes';
 import { ErrorHandler } from '@middlewares';
 import RouteRegistry from './routes';
 

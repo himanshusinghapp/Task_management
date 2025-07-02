@@ -40,7 +40,7 @@ router.post(
       password: Joi.string()
         .min(8)
         .max(100)
-        .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$'))
+        .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)
         .message(USER_MESSAGES.PASSWORD_POLICY)
         .required(),
     })
@@ -81,7 +81,7 @@ router.post(
       newPassword: Joi.string()
         .min(8)
         .max(100)
-        .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$'))
+        .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)
         .message(USER_MESSAGES.PASSWORD_POLICY)
         .required(),
     })
@@ -112,7 +112,7 @@ router.post(
       newPassword: Joi.string()
         .min(8)
         .max(100)
-        .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$'))
+        .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)
         .message(USER_MESSAGES.PASSWORD_POLICY)
         .required(),
     })

@@ -1,12 +1,12 @@
 import { Exceptions } from '@common/exception';
 import { Task } from '@models';
 import { CreateTaskDto, UpdateTaskDto } from '@dto';
-import { validateObjectIdArray,getPagination ,validateObject} from '@common/helpers';
+import { validateObjectIdArray,getPagination ,ValidateObject} from '@common/helpers';
 import { TASK_STATUS,LOGGER_MESSAGES,USER_MESSAGES, ROLE } from '@/common/constants';
 import { logServiceMethod, logServiceError ,AuditUtil,taskQuery } from '@utils';
 import mongoose from 'mongoose';
 
-const validateObjectInstance = new validateObject();
+const validateObjectInstance = new ValidateObject();
 
 export class TaskService {
   async createTask(data: CreateTaskDto, createdBy: string, role: string) {
@@ -18,8 +18,6 @@ export class TaskService {
         throw Exceptions.Forbidden(USER_MESSAGES.ADMIN_ONLY_ASSIGN);
       }
       const value: CreateTaskDto = data;
-      // value.assignedBy = createdBy;
-
       if (value.blockedBy?.length) {
         validateObjectIdArray(value.blockedBy, 'blockedBy');
         const blockers = await Task.find({ _id: { $in: value.blockedBy } });
@@ -91,7 +89,6 @@ export class TaskService {
       logServiceMethod('TaskService', 'updateTask', LOGGER_MESSAGES.UPDATE, { taskId, userId, role, updateData: Object.keys(data) });
       
       validateObjectInstance.validateObjectId(taskId, 'task ID');
-      // TODO: Add validation middleware or manual checks for required fields if needed
       const value: UpdateTaskDto = data;
       const task = await this.checkTask(taskId);
       
@@ -180,7 +177,7 @@ export class TaskService {
       validateObjectInstance.validateObjectId(taskId, 'task ID');
       const task = await this.checkTask(taskId);
       
-      if (!task.attachments) task.attachments = [];
+      task.attachments ??= [];
       task.attachments.push(...files);
       await task.updateOne({ attachments: task.attachments }, { runValidators: true });
 

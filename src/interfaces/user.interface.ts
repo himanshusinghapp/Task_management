@@ -1,6 +1,4 @@
 import { Document } from 'mongoose';
-import { DTO_CONSTANTS } from '@common/constants/dto.constants';
-
 export interface IUser extends Document {
   _id: string;
   name: string;

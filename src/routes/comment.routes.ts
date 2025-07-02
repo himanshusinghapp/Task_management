@@ -3,12 +3,12 @@ import { CommentController } from '@controllers';
 import { Auth ,Validate} from '@middlewares';
 import Joi from 'joi';
 import { ROLE, USER_MESSAGES } from '@common/constants';
-import { validateObject } from '@/common/helpers';
+import { ValidateObject } from '@/common/helpers';
 
 const commentController = new CommentController();
 const router = Router();
 
-const validateObjectInstance = new validateObject();
+const validateObjectInstance = new ValidateObject();
 
 router.post(
   '/',

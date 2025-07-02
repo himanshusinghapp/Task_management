@@ -1,5 +1,4 @@
 import { Document } from 'mongoose';
-import { DTO_CONSTANTS } from '@common/constants/dto.constants';
 
 export interface IProject extends Document {
   _id: string;

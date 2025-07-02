@@ -8,6 +8,7 @@ async function safeQuery<T>(fn: () => Promise<T>, errorMsg = 'Database error'): 
   try {
     return await fn();
   } catch (err) {
+    console.error("Database error:",err);
     throw Exceptions.InternalServerError(errorMsg);
   }
 }

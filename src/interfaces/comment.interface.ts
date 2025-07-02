@@ -1,6 +1,4 @@
 import { Document } from 'mongoose';
-import { DTO_CONSTANTS } from '@common/constants/dto.constants';
-
 export interface IComment extends Document {
   _id: string;
   content: string;

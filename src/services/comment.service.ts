@@ -1,12 +1,11 @@
 import { Comment } from '@models';
-import { USER_MESSAGES } from '@common/constants';
+import { USER_MESSAGES,LOGGER_MESSAGES } from '@common/constants';
 import { Exceptions } from '@common/exception';
 import { CreateCommentDto, UpdateCommentDto } from '@dto';
-import { validateObject } from '@common/helpers';
+import { ValidateObject } from '@common/helpers';
 import { logServiceMethod, logServiceError,AuditUtil ,commentQuery} from '@utils';
-import { LOGGER_MESSAGES } from '@common/constants';
 
-const validateObjectInstance = new validateObject();
+const validateObjectInstance = new ValidateObject();
 
 export class CommentService {
   async createComment(data: CreateCommentDto, createdBy: string) {

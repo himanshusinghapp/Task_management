@@ -3,12 +3,12 @@ import { ProjectController } from '@controllers';
 import { Auth, Validate } from '@middlewares';
 import Joi from 'joi';
 import { ROLE, USER_MESSAGES } from '@common/constants';
-import { validateObject } from '@/common/helpers';
+import { ValidateObject } from '@/common/helpers';
 
 const router = Router();
 const controller = new ProjectController();
 
-const validateObjectInstance = new validateObject();
+const validateObjectInstance = new ValidateObject();
 
 const projectIdParam = Joi.object({
   projectId: Joi.string().custom(validateObjectInstance.objectId).required(),

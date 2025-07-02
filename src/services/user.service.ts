@@ -1,8 +1,7 @@
 import bcrypt from 'bcrypt';
 import { hashPassword} from '@common/helpers';
 import { USER_MESSAGES, OTP_EXPIRY, OTP_ATTEMPT_THRESHOLD, OTP_ATTEMPT_BLOCK_TIME, LOGGER_MESSAGES, ROLE  } from '@common/constants';
-import { userQuery, logServiceMethod, logServiceError } from '@utils';
-import { JwtUtil,EmailUtil,GeneratorUtil,RedisUtil } from '@utils';
+import { userQuery, logServiceMethod, logServiceError,JwtUtil,EmailUtil,GeneratorUtil,RedisUtil } from '@utils';
 import { Exceptions } from '@common/exception';
 import { User } from '@models';
 
