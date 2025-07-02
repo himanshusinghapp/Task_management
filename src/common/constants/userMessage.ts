@@ -41,6 +41,8 @@ export const USER_MESSAGES = {
   ADMIN_DELETED: 'Admin deleted successfully',
   ADMIN_LOGIN_SUCCESS: 'Admin login successful',
   ADMIN_LOGOUT_SUCCESS: 'Admin logged out successfully',
+  PASSWORD_EMAIL_IN_ENV:'ADMIN_EMAIL and ADMIN_PASSWORD must be set in environment variables.',
+  ADMIN_SEED:'Admin seed successfully',
   USER_BLOCKED: 'User blocked successfully',
   USER_UNBLOCKED: 'User unblocked successfully',
   USER_SEARCH_EMPTY: 'No users found for the search query',

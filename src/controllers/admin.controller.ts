@@ -91,7 +91,6 @@ export class AdminController {
     try {
       const admin = req.user;
       logControllerMethod('AdminController', 'getProfile', LOGGER_MESSAGES.USER_FETCHED, { adminId: admin._id});
-      
       const result = await adminService.getProfile(admin._id);
       
       logControllerMethod('AdminController', 'getProfile', LOGGER_MESSAGES.USER_FETCHED, { adminId: admin._id });

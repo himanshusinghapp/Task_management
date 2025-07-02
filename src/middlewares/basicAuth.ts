@@ -1,3 +1,4 @@
+import { HTTP_STATUS, USER_MESSAGES } from '@/common/constants';
 import { Request, Response, NextFunction } from 'express';
 export class BasicAuth {
 
@@ -5,7 +6,7 @@ export class BasicAuth {
     return (req: Request, res: Response, next: NextFunction) => {
       const authHeader = req.headers.authorization;
       if (!authHeader || !authHeader.startsWith('Basic ')) {
-        return res.status(401).json({ message: 'Missing or invalid Authorization header' });
+        return res.status(401).json({ message: USER_MESSAGES.TOKEN_MISSING  });
       }
       const base64Credentials = authHeader.split(' ')[1];
       const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
@@ -15,7 +16,7 @@ export class BasicAuth {
       if (username === validUsername && password === validPassword) {
         return next();
       }
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message:USER_MESSAGES.INVALID_TOKEN });
     };
   }
 }

@@ -43,11 +43,12 @@ export class AdminService {
         throw Exceptions.Unauthorized(USER_MESSAGES.INVALID_CREDENTIALS);
       }
 
+      await adminQuery.updateAdminById(admin._id.toString(), { isActive: true });
       const accessToken = JwtUtil.generateToken(admin._id.toString(), ROLE.ADMIN);
       await RedisUtil.set(
         `session:user:${admin._id}`,
         JSON.stringify({
-          id: admin._id,
+          _id: admin._id,
           email: admin.email,
           role: ROLE.ADMIN,
           isActive: admin.isActive,
@@ -159,7 +160,6 @@ export class AdminService {
   async logout(adminId: string) {
     try {
       logServiceMethod('AdminService', 'logout', LOGGER_MESSAGES.ADMIN_LOGOUT, { adminId });
-      
       const admin = await adminQuery.findAdminById(adminId);
       if (!admin) {
         logServiceMethod('AdminService', 'logout', LOGGER_MESSAGES.ADMIN_LOGIN_FAILED, { adminId });
@@ -167,6 +167,7 @@ export class AdminService {
       }
       
       await Admin.updateOne({ _id: adminId }, { $set: { isActive: false } });
+      await RedisUtil.del(`session:user:${adminId}`);
       
       logServiceMethod('AdminService', 'logout', LOGGER_MESSAGES.ADMIN_LOGOUT, { adminId });
       return { adminId };

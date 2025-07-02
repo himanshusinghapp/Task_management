@@ -25,7 +25,7 @@ export class Auth {
       try {
         decoded = jwt.verify(token, process.env.JWT_SECRET!);
       } catch (err) {
-        return res.status(401).json({ message:USER_MESSAGES.INVALID_TOKEN});
+        return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message:USER_MESSAGES.INVALID_TOKEN});
       }
 
       const userId = decoded.id;

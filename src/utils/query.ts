@@ -33,8 +33,8 @@ class AdminQuery {
   async findAdminById(id: string) {
     return safeQuery(() => Admin.findById(id).lean(), USER_MESSAGES.ADMIN_NOT_FOUND);
   }
-  async updateAdminById(id: string, data: Partial<typeof Admin>) {
-    return safeQuery(() => Admin.updateOne({ _id: id }, { $set: data }), USER_MESSAGES.ADMIN_UPDATED);
+  async updateAdminById(id: string, update:any) {
+    return safeQuery(() => Admin.updateOne({ _id: id }, update), USER_MESSAGES.ADMIN_UPDATED);
   }
   async findUsers() {
     return safeQuery(() => User.find().select('-password'), USER_MESSAGES.USER_SEARCH_ERROR);
