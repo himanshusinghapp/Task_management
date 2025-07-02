@@ -51,13 +51,27 @@ export class UserService {
         logServiceMethod('UserService', 'verifyEmailOtp', LOGGER_MESSAGES.OTP_REQUEST_LIMIT, { email });
         throw Exceptions.BadRequest(USER_MESSAGES.INVALID_OR_EXPIRED_OTP);
       }
-      if(storedOtp !== otp){
-        
-      }
       
+      const attemptsKey = `otp:invalid:${email}`;
+      let attempts = Number(await RedisUtil.get(attemptsKey)) || 0;
 
-      await RedisUtil.del(`otp:${email}`);
-      await RedisUtil.set(`verified:${email}`, 'true', 'EX', OTP_ATTEMPT_BLOCK_TIME); 
+      if (storedOtp !== otp) {
+        attempts += 1;
+        await RedisUtil.set(attemptsKey, String(attempts), 'EX', OTP_ATTEMPT_BLOCK_TIME);
+        if (attempts >= OTP_ATTEMPT_THRESHOLD) {
+          await RedisUtil.del(`otp:${email}`); 
+          logServiceMethod('UserService', 'verifyEmailOtp', LOGGER_MESSAGES.OTP_REQUEST_LIMIT, { email, attempts });
+          throw Exceptions.TooManyRequests(USER_MESSAGES.TOO_MANY_ATTEMPTS);
+        }
+        logServiceMethod('UserService', 'verifyEmailOtp', LOGGER_MESSAGES.OTP_REQUEST_LIMIT, { email, attempts });
+        throw Exceptions.BadRequest(USER_MESSAGES.INVALID_OTP(attempts));
+      }
+      Promise.all([
+        RedisUtil.del(attemptsKey),
+        RedisUtil.del(`otp:${email}`),
+        RedisUtil.set(`verified:${email}`, 'true', 'EX', OTP_ATTEMPT_BLOCK_TIME),
+      ])
+
 
       logServiceMethod('UserService', 'verifyEmailOtp', LOGGER_MESSAGES.EMAIL_SENT, { email });
       return { message: USER_MESSAGES.EMAIL_VERIFIED };
